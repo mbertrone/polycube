@@ -458,10 +458,10 @@ void Chain::updateChain() {
     if ((getRuleList().size() >= HorusConst::MIN_RULE_SIZE_FOR_HORUS) &&
         (parent_.getChain(ChainNameEnum::FORWARD)->getRuleList().size() == 0)) {
       // calculate horus ruleset
-      horusFromRulesToMap(horus, getRuleList());
+      int horus_offset = horusFromRulesToMap(horus, getRuleList());
 
       // if horus.size() >= MIN_RULES_HORUS_OPTIMIZATION
-      if (horus.size() >= HorusConst::MIN_RULE_SIZE_FOR_HORUS) {
+      if (horus_offset != -1) {
         logger()->info("Horus Optimization ENABLED for this rule-set");
 
         // horus_runtime_enabled_ = true -> (Parser should access to

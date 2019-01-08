@@ -538,36 +538,104 @@ void Chain::fromRuleToHorusKeyValue(std::shared_ptr<ChainRule> rule,
   return;
 }
 
-void Chain::horusFromRulesToMap(
+bool checkHorusRulesOrthogonal(const std::vector<std::shared_ptr<ChainRule>> &rules, uint32_t horus_offset, uint32_t horus_size) {
+
+  // create a struct, for each field, representing the portion of such dimension occupied by rules [0,offset)
+
+  // ip (src/dst), create a list of ip+netmask.
+  // When we want to check if an ip is present it is sufficient to iterate over such list applying netmasks
+
+  // port (src/dst), create a map of ports.
+  // When we want to check if an port is present it is sufficient to lookup the map
+
+  // proto, create a map of protocols
+  // When we want to check if an proto is present it is sufficient to lookup the map
+
+
+  if (horus_offset > 0)
+    return false;
+  return true;
+}
+
+// return offset of the rule horus optimization start
+// first rule -> 0
+// second rule -> 1
+
+// return -1 if no horus could be applied
+int Chain::horusFromRulesToMap(
         std::map<struct HorusRule, struct HorusValue> &horus,
         const std::vector<std::shared_ptr<ChainRule>> &rules) {
   struct HorusRule key;
   struct HorusValue value;
 
-  bool first_rule = true;
-  uint64_t set_fields = 0;
+  int horus_offset = 0;
+  int horus_size = 0;
+  bool found_consecutive_rules = false;
+  int count_consecutives = 0;
 
-  // find match pattern for first rule (e.g. 01101 means ips proto ports set)
-
+  // find at least MIN_RULE_SIZE_FOR_HORUS (2)
+  // consecutive rules with same pattern
   int i = 0;
+  uint64_t set_fields = 0;
 
   for (auto const &rule : rules) {
     i++;
     fromRuleToHorusKeyValue(rule, key, value);
 
-    if (i == 1) {
-      if (key.setFields == 0) {
-        break;
-      }
-
+    if (count_consecutives == 0) {
       set_fields = key.setFields;
+      count_consecutives++;
+    } else if (count_consecutives >= 1) {
+      if (set_fields == key.setFields) {
+        count_consecutives++;
+      } else {
+        count_consecutives = 1;
+        set_fields = key.setFields;
+      }
     }
 
-    if (key.setFields != set_fields) {
+    if (count_consecutives >= HorusConst::MIN_RULE_SIZE_FOR_HORUS){
+      horus_offset = i - count_consecutives;
+      found_consecutive_rules = true;
       break;
     }
+  }
 
-    horus.insert(std::pair<struct HorusRule, struct HorusValue>(key, value));
+  if (!found_consecutive_rules) {
+    return -1;
+  }
+
+  // insert rules into map
+  i = 0;
+
+  for (auto const &rule : rules) {
+    i++;
+    // consider only significant rules
+    if (i > horus_offset) {
+      fromRuleToHorusKeyValue(rule, key, value);
+      if (i == (horus_offset + 1) ) {
+        if (key.setFields == 0) {
+          break;
+        }
+        set_fields = key.setFields;
+      }
+      if (key.setFields != set_fields) {
+        break;
+      }
+      horus.insert(std::pair<struct HorusRule, struct HorusValue>(key, value));
+    }
+  }
+
+  horus_size = horus.size();
+
+  // check orthogonality of rules
+
+  if ( checkHorusRulesOrthogonal(rules, horus_offset, horus_size) ) {
+    return horus_offset;
+  } else {
+    // TODO verify clear is enough
+    horus.clear();
+    return -1;
   }
 }
 
