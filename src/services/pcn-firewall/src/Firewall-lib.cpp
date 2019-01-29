@@ -17,8 +17,9 @@
 #define SERVICE_DESCRIPTION "Firewall Service"
 #define SERVICE_VERSION "2.0"
 #define SERVICE_PYANG_GIT ""
-#define SERVICE_SWAGGER_CODEGEN_GIT "polycube/50b9d4f"
+#define SERVICE_SWAGGER_CODEGEN_GIT "c757d44b71d48df9e381fc8d35ea69bd12268127/c757d44"
 #define SERVICE_REQUIRED_KERNEL_VERSION "4.14.0"
+
 const std::string SERVICE_DATA_MODEL = R"POLYCUBE_DM(
 module firewall {
   yang-version 1.1;
@@ -36,11 +37,6 @@ module firewall {
   basemodel:service-min-kernel-version "4.14.0";
 
   uses "basemodel:base-yang-module";
-
-  extension cli-example {
-    argument "value";
-    description "A sample value used by the CLI generator";
-  }
 
   typedef action {
     type enumeration {
@@ -65,61 +61,61 @@ module firewall {
     leaf src {
       type string;
       description "Source IP Address.";
-      config false;
-      firewall:cli-example "10.0.0.1/24";
+      basemodel:init-only-config;
+      basemodel:cli-example "10.0.0.1/24";
     }
 
     leaf dst {
       type string;
       description "Destination IP Address.";
-      config false;
-      firewall:cli-example "10.0.0.2/24";
+      basemodel:init-only-config;
+      basemodel:cli-example "10.0.0.2/24";
     }
 
     leaf l4proto {
       type string;
-      config false;
+      basemodel:init-only-config;
       description "Level 4 Protocol.";
     }
 
     leaf sport {
       type uint16;
-      config false;
+      basemodel:init-only-config;
       description "Source L4 Port";
     }
 
     leaf dport {
       type uint16;
-      config false;
+      basemodel:init-only-config;
       description "Destination L4 Port";
     }
 
     leaf tcpflags {
       type string;
-      config false;
+      basemodel:init-only-config;
       description "TCP flags. Allowed values: SYN, FIN, ACK, RST, PSH, URG, CWR, ECE. ! means set to 0.";
-      firewall:cli-example "!FIN,SYN,!RST,!ACK";
+      basemodel:cli-example "!FIN,SYN,!RST,!ACK";
     }
 
     leaf conntrack {
       type conntrackstatus;
-      config false;
+      basemodel:init-only-config;
       description "Connection status (NEW, ESTABLISHED, RELATED, INVALID)";
     }
 
 
     leaf action {
       type action;
-      config false;
+      basemodel:init-only-config;
       description "Action if the rule matches. Default is DROP.";
-      firewall:cli-example "DROP, FORWARD, LOG";
+      basemodel:cli-example "DROP, FORWARD, LOG";
     }
 
     leaf description {
       type string;
-      config false;
+      basemodel:init-only-config;
       description "Description of the rule.";
-      firewall:cli-example "This rule blocks incoming SSH connections.";
+      basemodel:cli-example "This rule blocks incoming SSH connections.";
     }
   }
 
@@ -203,7 +199,7 @@ module firewall {
   }
 
   list chain {
-    key name;
+    key "name";
 
     leaf name {
       type enumeration {
@@ -212,13 +208,13 @@ module firewall {
         enum INVALID;
       }
       description "Chain in which the rule will be inserted. Default: INGRESS.";
-      firewall:cli-example "INGRESS, EGRESS.";
+      basemodel:cli-example "INGRESS, EGRESS.";
     }
 
     leaf default {
       type action;
       description "Default action if no rule matches in the ingress chain. Default is DROP.";
-      firewall:cli-example "DROP, FORWARD, LOG";
+      basemodel:cli-example "DROP, FORWARD, LOG";
     }
 
     list stats {
@@ -289,4 +285,10 @@ module firewall {
 }
 
 )POLYCUBE_DM";
+
+extern "C" const char *data_model() {
+  return SERVICE_DATA_MODEL.c_str();
+}
+
+
 #include <polycube/services/shared_library.h>
