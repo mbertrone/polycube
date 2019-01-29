@@ -22,42 +22,28 @@ namespace swagger {
 namespace server {
 namespace model {
 
-ActionsJsonObject::ActionsJsonObject() {
+ActionsJsonObject::ActionsJsonObject() :
+  m_inportIsSet (false),
+  m_actionIsSet (false),
+  m_outportIsSet (false) { }
 
-  m_inportIsSet = false;
+ActionsJsonObject::ActionsJsonObject(nlohmann::json& val) :
+  m_inportIsSet (false),
+  // Mandatory item
+  m_action (string_to_ActionsActionEnum(val.at("action").get<std::string>())),
+  m_actionIsSet (true),
+  m_outportIsSet (false) {
 
-  m_actionIsSet = false;
 
-  m_outportIsSet = false;
-}
-
-ActionsJsonObject::~ActionsJsonObject() {}
-
-void ActionsJsonObject::validateKeys() {
-
-  if (!m_inportIsSet) {
-    throw std::runtime_error("Variable inport is required");
+  if (val.count("outport") != 0) {
+    setOutport(val.at("outport").get<std::string>());
   }
-}
-
-void ActionsJsonObject::validateMandatoryFields() {
-
-  if (!m_actionIsSet) {
-    throw std::runtime_error("Variable action is required");
-  }
-}
-
-void ActionsJsonObject::validateParams() {
-
 }
 
 nlohmann::json ActionsJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_inportIsSet) {
-    val["inport"] = m_inport;
-  }
-
+  val["inport"] = m_inport;
   val["action"] = ActionsActionEnum_to_string(m_action);
   if (m_outportIsSet) {
     val["outport"] = m_outport;
@@ -65,29 +51,6 @@ nlohmann::json ActionsJsonObject::toJson() const {
 
 
   return val;
-}
-
-void ActionsJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("inport") != val.end()) {
-    setInport(val.at("inport"));
-  }
-
-  if (val.find("action") != val.end()) {
-    setAction(string_to_ActionsActionEnum(val.at("action")));
-  }
-
-  if (val.find("outport") != val.end()) {
-    setOutport(val.at("outport"));
-  }
 }
 
 nlohmann::json ActionsJsonObject::helpKeys() {
@@ -159,9 +122,7 @@ bool ActionsJsonObject::inportIsSet() const {
   return m_inportIsSet;
 }
 
-void ActionsJsonObject::unsetInport() {
-  m_inportIsSet = false;
-}
+
 
 
 
@@ -178,9 +139,7 @@ bool ActionsJsonObject::actionIsSet() const {
   return m_actionIsSet;
 }
 
-void ActionsJsonObject::unsetAction() {
-  m_actionIsSet = false;
-}
+
 
 std::string ActionsJsonObject::ActionsActionEnum_to_string(const ActionsActionEnum &value){
   switch(value){
@@ -230,4 +189,5 @@ void ActionsJsonObject::unsetOutport() {
 }
 }
 }
+
 
