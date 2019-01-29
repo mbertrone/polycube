@@ -16,9 +16,10 @@
 #define MANAGER_TYPE io::swagger::server::api::LbdsrApiImpl
 #define SERVICE_DESCRIPTION "LoadBalancer Direct Server Return Service"
 #define SERVICE_VERSION "2.0.0"
-#define SERVICE_PYANG_GIT "polycube-new-code-restconf/70199bf"
-#define SERVICE_SWAGGER_CODEGEN_GIT "new_code_generator/8ec7cae"
+#define SERVICE_PYANG_GIT ""
+#define SERVICE_SWAGGER_CODEGEN_GIT "c757d44b71d48df9e381fc8d35ea69bd12268127/c757d44"
 #define SERVICE_REQUIRED_KERNEL_VERSION "4.14.0"
+
 const std::string SERVICE_DATA_MODEL = R"POLYCUBE_DM(
 module lbdsr {
   yang-version 1.1;
@@ -30,12 +31,7 @@ module lbdsr {
   import ietf-yang-types { prefix "yang"; }
 
   organization "Polycube open source project";
-  description "YANG data model for the Polycube loadbalancer (Direct Server Return)";
-
-  extension cli-example {
-    argument "value";
-    description "A sample value used by the CLI generator";
-  }
+  description "YANG data model for the Polycube Load Balancer (Direct Server Return)";
 
   basemodel:service-description "LoadBalancer Direct Server Return Service";
   basemodel:service-version "2.0.0";
@@ -58,7 +54,7 @@ module lbdsr {
   leaf algorithm {
     type string;
     description "Defines the algorithm which LB use to direct requests to the node of the pool (Random, RoundRobin, ..)";
-    lbdsr:cli-example "Random";
+    basemodel:cli-example "Random";
   }
 
   container frontend {
@@ -67,13 +63,13 @@ module lbdsr {
     leaf vip {
       type inet:ipv4-address;
       description "IP address of the loadbalancer frontend";
-      lbdsr:cli-example "130.192.100.1";
+      basemodel:cli-example "130.192.100.1";
     }
 
     leaf mac {
       type yang:mac-address;
       description "MAC address of the port";
-      lbdsr:cli-example "aa:bb:cc:dd:ee:ff";
+      basemodel:cli-example "aa:bb:cc:dd:ee:ff";
     }
   }
 
@@ -91,13 +87,20 @@ module lbdsr {
       leaf mac {
         type yang:mac-address;
         mandatory true;
-        config false;
+        config true;
+        basemodel:init-only-config;
         description "MAC address of the backend server of the pool";
-        lbdsr:cli-example "aa:bb:cc:dd:ee:ff";
+        basemodel:cli-example "aa:bb:cc:dd:ee:ff";
       }
     }
   }
 }
 
 )POLYCUBE_DM";
+
+extern "C" const char *data_model() {
+  return SERVICE_DATA_MODEL.c_str();
+}
+
+
 #include <polycube/services/shared_library.h>

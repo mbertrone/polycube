@@ -15,11 +15,6 @@ module lbdsr {
   basemodel:service-name "lbdsr";
   basemodel:service-min-kernel-version "4.14.0";
 
-  extension cli-example {
-    argument "value";
-    description "A sample value used by the CLI generator";
-  }
-
   uses "basemodel:base-yang-module" {
     augment ports {
       leaf type {
@@ -36,7 +31,7 @@ module lbdsr {
   leaf algorithm {
     type string;
     description "Defines the algorithm which LB use to direct requests to the node of the pool (Random, RoundRobin, ..)";
-    lbdsr:cli-example "Random";
+    basemodel:cli-example "Random";
   }
 
   container frontend {
@@ -45,13 +40,13 @@ module lbdsr {
     leaf vip {
       type inet:ipv4-address;
       description "IP address of the loadbalancer frontend";
-      lbdsr:cli-example "130.192.100.1";
+      basemodel:cli-example "130.192.100.1";
     }
 
     leaf mac {
       type yang:mac-address;
       description "MAC address of the port";
-      lbdsr:cli-example "aa:bb:cc:dd:ee:ff";
+      basemodel:cli-example "aa:bb:cc:dd:ee:ff";
     }
   }
 
@@ -69,9 +64,10 @@ module lbdsr {
       leaf mac {
         type yang:mac-address;
         mandatory true;
-        config false;
+        config true;
+        basemodel:init-only-config;
         description "MAC address of the backend server of the pool";
-        lbdsr:cli-example "aa:bb:cc:dd:ee:ff";
+        basemodel:cli-example "aa:bb:cc:dd:ee:ff";
       }
     }
   }
