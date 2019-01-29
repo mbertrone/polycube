@@ -22,48 +22,28 @@ namespace swagger {
 namespace server {
 namespace model {
 
-FdbEntryJsonObject::FdbEntryJsonObject() {
+FdbEntryJsonObject::FdbEntryJsonObject() :
+  m_addressIsSet (false),
+  m_portIsSet (false),
+  m_ageIsSet (false) { }
 
-  m_addressIsSet = false;
+FdbEntryJsonObject::FdbEntryJsonObject(nlohmann::json& val) :
+  m_addressIsSet (false),
+  // Mandatory item
+  m_port (val.at("port").get<std::string>()),
+  m_portIsSet (true),
+  m_ageIsSet (false) {
 
-  m_portIsSet = false;
 
-  m_ageIsSet = false;
-}
-
-FdbEntryJsonObject::~FdbEntryJsonObject() {}
-
-void FdbEntryJsonObject::validateKeys() {
-
-  if (!m_addressIsSet) {
-    throw std::runtime_error("Variable address is required");
-  }
-}
-
-void FdbEntryJsonObject::validateMandatoryFields() {
-
-  if (!m_portIsSet) {
-    throw std::runtime_error("Variable port is required");
-  }
-}
-
-void FdbEntryJsonObject::validateParams() {
-
-  if (m_addressIsSet) {
-    std::string patter_value = R"PATTERN([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_address, e))
-      throw std::runtime_error("Variable address has not a valid format");
+  if (val.count("age") != 0) {
+    setAge(val.at("age").get<uint32_t>());
   }
 }
 
 nlohmann::json FdbEntryJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_addressIsSet) {
-    val["address"] = m_address;
-  }
-
+  val["address"] = m_address;
   val["port"] = m_port;
   if (m_ageIsSet) {
     val["age"] = m_age;
@@ -71,29 +51,6 @@ nlohmann::json FdbEntryJsonObject::toJson() const {
 
 
   return val;
-}
-
-void FdbEntryJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("address") != val.end()) {
-    setAddress(val.at("address"));
-  }
-
-  if (val.find("port") != val.end()) {
-    setPort(val.at("port"));
-  }
-
-  if (val.find("age") != val.end()) {
-    setAge(val.at("age"));
-  }
 }
 
 nlohmann::json FdbEntryJsonObject::helpKeys() {
@@ -161,9 +118,7 @@ bool FdbEntryJsonObject::addressIsSet() const {
   return m_addressIsSet;
 }
 
-void FdbEntryJsonObject::unsetAddress() {
-  m_addressIsSet = false;
-}
+
 
 
 
@@ -180,9 +135,7 @@ bool FdbEntryJsonObject::portIsSet() const {
   return m_portIsSet;
 }
 
-void FdbEntryJsonObject::unsetPort() {
-  m_portIsSet = false;
-}
+
 
 
 
@@ -210,4 +163,5 @@ void FdbEntryJsonObject::unsetAge() {
 }
 }
 }
+
 

@@ -22,24 +22,23 @@ namespace swagger {
 namespace server {
 namespace model {
 
-FdbJsonObject::FdbJsonObject() {
+FdbJsonObject::FdbJsonObject() :
+  m_agingTimeIsSet (false),
+  m_entryIsSet (false) { }
 
-  m_agingTimeIsSet = false;
+FdbJsonObject::FdbJsonObject(nlohmann::json& val) :
+  m_agingTimeIsSet (false),
+  m_entryIsSet (false) {
+  if (val.count("aging-time") != 0) {
+    setAgingTime(val.at("aging-time").get<uint32_t>());
+  }
 
-  m_entryIsSet = false;
-}
-
-FdbJsonObject::~FdbJsonObject() {}
-
-void FdbJsonObject::validateKeys() {
-
-}
-
-void FdbJsonObject::validateMandatoryFields() {
-
-}
-
-void FdbJsonObject::validateParams() {
+  m_entry.clear();
+  for (auto& item : val["entry"]) {
+    FdbEntryJsonObject newItem { item };
+    m_entry.push_back(newItem);
+  }
+  m_entryIsSet = !m_entry.empty();
 
 }
 
@@ -62,31 +61,6 @@ nlohmann::json FdbJsonObject::toJson() const {
   }
 
   return val;
-}
-
-void FdbJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("aging-time") != val.end()) {
-    setAgingTime(val.at("aging-time"));
-  }
-
-  m_entry.clear();
-  for (auto& item : val["entry"]) {
-
-    FdbEntryJsonObject newItem;
-    newItem.fromJson(item);
-    m_entry.push_back(newItem);
-    m_entryIsSet = true;
-  }
-
 }
 
 nlohmann::json FdbJsonObject::helpKeys() {
@@ -184,4 +158,5 @@ void FdbJsonObject::unsetEntry() {
 }
 }
 }
+
 
