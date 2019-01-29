@@ -22,88 +22,80 @@ namespace swagger {
 namespace server {
 namespace model {
 
-K8switchJsonObject::K8switchJsonObject() {
+K8switchJsonObject::K8switchJsonObject() :
+  m_nameIsSet (false),
+  m_uuidIsSet (false),
+  m_type (CubeType::TC),
+  m_typeIsSet (true),
+  m_loglevel (K8switchLoglevelEnum::INFO),
+  m_loglevelIsSet (true),
+  m_portsIsSet (false),
+  m_clusterIpSubnetIsSet (false),
+  m_clientSubnetIsSet (false),
+  m_virtualClientSubnetIsSet (false),
+  m_serviceIsSet (false),
+  m_fwdTableIsSet (false) { }
 
-  m_nameIsSet = false;
+K8switchJsonObject::K8switchJsonObject(nlohmann::json& val) :
+  m_nameIsSet (false),
+  m_uuidIsSet (false),
+  // Item with a default value, granted to be part of the request body
+  m_type (string_to_CubeType(val.at("type").get<std::string>())),
+  m_typeIsSet (true),
+  // Item with a default value, granted to be part of the request body
+  m_loglevel (string_to_K8switchLoglevelEnum(val.at("loglevel").get<std::string>())),
+  m_loglevelIsSet (true),
+  m_portsIsSet (false),
+  // Mandatory item
+  m_clusterIpSubnet (val.at("cluster-ip-subnet").get<std::string>()),
+  m_clusterIpSubnetIsSet (true),
+  // Mandatory item
+  m_clientSubnet (val.at("client-subnet").get<std::string>()),
+  m_clientSubnetIsSet (true),
+  // Mandatory item
+  m_virtualClientSubnet (val.at("virtual-client-subnet").get<std::string>()),
+  m_virtualClientSubnetIsSet (true),
+  m_serviceIsSet (false),
+  m_fwdTableIsSet (false) {
 
-  m_uuidIsSet = false;
-
-  m_type = CubeType::TC;
-  m_typeIsSet = false;
-
-  m_loglevel = K8switchLoglevelEnum::INFO;
-  m_loglevelIsSet = false;
-
-  m_portsIsSet = false;
-
-  m_clusterIpSubnetIsSet = false;
-
-  m_clientSubnetIsSet = false;
-
-  m_virtualClientSubnetIsSet = false;
-
-  m_serviceIsSet = false;
-
-  m_fwdTableIsSet = false;
-}
-
-K8switchJsonObject::~K8switchJsonObject() {}
-
-void K8switchJsonObject::validateKeys() {
-
-  if (!m_nameIsSet) {
-    throw std::runtime_error("Variable name is required");
+  if (val.count("uuid") != 0) {
+    setUuid(val.at("uuid").get<std::string>());
   }
-}
 
-void K8switchJsonObject::validateMandatoryFields() {
 
-  if (!m_clusterIpSubnetIsSet) {
-    throw std::runtime_error("Variable cluster-ip-subnet is required");
-  }
-  if (!m_clientSubnetIsSet) {
-    throw std::runtime_error("Variable client-subnet is required");
-  }
-  if (!m_virtualClientSubnetIsSet) {
-    throw std::runtime_error("Variable virtual-client-subnet is required");
-  }
-}
 
-void K8switchJsonObject::validateParams() {
+  m_ports.clear();
+  for (auto& item : val["ports"]) {
+    PortsJsonObject newItem { item };
+    m_ports.push_back(newItem);
+  }
+  m_portsIsSet = !m_ports.empty();
 
-  if (m_uuidIsSet) {
-    std::string patter_value = R"PATTERN([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_uuid, e))
-      throw std::runtime_error("Variable uuid has not a valid format");
+
+
+
+
+  m_service.clear();
+  for (auto& item : val["service"]) {
+    ServiceJsonObject newItem { item };
+    m_service.push_back(newItem);
   }
-  if (m_clusterIpSubnetIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(([0-9])|([1-2][0-9])|(3[0-2])))PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_clusterIpSubnet, e))
-      throw std::runtime_error("Variable cluster-ip-subnet has not a valid format");
+  m_serviceIsSet = !m_service.empty();
+
+
+  m_fwdTable.clear();
+  for (auto& item : val["fwd-table"]) {
+    FwdTableJsonObject newItem { item };
+    m_fwdTable.push_back(newItem);
   }
-  if (m_clientSubnetIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(([0-9])|([1-2][0-9])|(3[0-2])))PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_clientSubnet, e))
-      throw std::runtime_error("Variable client-subnet has not a valid format");
-  }
-  if (m_virtualClientSubnetIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(([0-9])|([1-2][0-9])|(3[0-2])))PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_virtualClientSubnet, e))
-      throw std::runtime_error("Variable virtual-client-subnet has not a valid format");
-  }
+  m_fwdTableIsSet = !m_fwdTable.empty();
+
 }
 
 nlohmann::json K8switchJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_nameIsSet) {
-    val["name"] = m_name;
-  }
-
+  val["name"] = m_name;
   if (m_uuidIsSet) {
     val["uuid"] = m_uuid;
   }
@@ -151,75 +143,6 @@ nlohmann::json K8switchJsonObject::toJson() const {
   }
 
   return val;
-}
-
-void K8switchJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("name") != val.end()) {
-    setName(val.at("name"));
-  }
-
-  if (val.find("uuid") != val.end()) {
-    setUuid(val.at("uuid"));
-  }
-
-  if (val.find("type") != val.end()) {
-    setType(string_to_CubeType(val.at("type")));
-  }
-
-  if (val.find("loglevel") != val.end()) {
-    setLoglevel(string_to_K8switchLoglevelEnum(val.at("loglevel")));
-  }
-
-  m_ports.clear();
-  for (auto& item : val["ports"]) {
-
-    PortsJsonObject newItem;
-    newItem.fromJson(item);
-    m_ports.push_back(newItem);
-    m_portsIsSet = true;
-  }
-
-
-  if (val.find("cluster-ip-subnet") != val.end()) {
-    setClusterIpSubnet(val.at("cluster-ip-subnet"));
-  }
-
-  if (val.find("client-subnet") != val.end()) {
-    setClientSubnet(val.at("client-subnet"));
-  }
-
-  if (val.find("virtual-client-subnet") != val.end()) {
-    setVirtualClientSubnet(val.at("virtual-client-subnet"));
-  }
-
-  m_service.clear();
-  for (auto& item : val["service"]) {
-
-    ServiceJsonObject newItem;
-    newItem.fromJson(item);
-    m_service.push_back(newItem);
-    m_serviceIsSet = true;
-  }
-
-
-  m_fwdTable.clear();
-  for (auto& item : val["fwd-table"]) {
-
-    FwdTableJsonObject newItem;
-    newItem.fromJson(item);
-    m_fwdTable.push_back(newItem);
-    m_fwdTableIsSet = true;
-  }
-
 }
 
 nlohmann::json K8switchJsonObject::helpKeys() {
@@ -346,9 +269,7 @@ bool K8switchJsonObject::nameIsSet() const {
   return m_nameIsSet;
 }
 
-void K8switchJsonObject::unsetName() {
-  m_nameIsSet = false;
-}
+
 
 
 
@@ -391,22 +312,22 @@ void K8switchJsonObject::unsetType() {
 std::string K8switchJsonObject::CubeType_to_string(const CubeType &value){
   switch(value){
     case CubeType::TC:
-      return std::string("TC");
+      return std::string("tc");
     case CubeType::XDP_SKB:
-      return std::string("XDP_SKB");
+      return std::string("xdp_skb");
     case CubeType::XDP_DRV:
-      return std::string("XDP_DRV");
+      return std::string("xdp_drv");
     default:
       throw std::runtime_error("Bad K8switch type");
   }
 }
 
 CubeType K8switchJsonObject::string_to_CubeType(const std::string &str){
-  if (JsonObjectBase::iequals("TC", str))
+  if (JsonObjectBase::iequals("tc", str))
     return CubeType::TC;
-  if (JsonObjectBase::iequals("XDP_SKB", str))
+  if (JsonObjectBase::iequals("xdp_skb", str))
     return CubeType::XDP_SKB;
-  if (JsonObjectBase::iequals("XDP_DRV", str))
+  if (JsonObjectBase::iequals("xdp_drv", str))
     return CubeType::XDP_DRV;
   throw std::runtime_error("K8switch type is invalid");
 }
@@ -518,9 +439,7 @@ bool K8switchJsonObject::clusterIpSubnetIsSet() const {
   return m_clusterIpSubnetIsSet;
 }
 
-void K8switchJsonObject::unsetClusterIpSubnet() {
-  m_clusterIpSubnetIsSet = false;
-}
+
 
 
 
@@ -537,9 +456,7 @@ bool K8switchJsonObject::clientSubnetIsSet() const {
   return m_clientSubnetIsSet;
 }
 
-void K8switchJsonObject::unsetClientSubnet() {
-  m_clientSubnetIsSet = false;
-}
+
 
 
 
@@ -556,9 +473,7 @@ bool K8switchJsonObject::virtualClientSubnetIsSet() const {
   return m_virtualClientSubnetIsSet;
 }
 
-void K8switchJsonObject::unsetVirtualClientSubnet() {
-  m_virtualClientSubnetIsSet = false;
-}
+
 
 
 
@@ -605,4 +520,5 @@ void K8switchJsonObject::unsetFwdTable() {
 }
 }
 }
+
 
