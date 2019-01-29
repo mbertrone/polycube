@@ -17,8 +17,9 @@
 #define SERVICE_DESCRIPTION "LoadBalancer Reverse-Proxy Service"
 #define SERVICE_VERSION "2.0.0"
 #define SERVICE_PYANG_GIT ""
-#define SERVICE_SWAGGER_CODEGEN_GIT "polycube/50b9d4f"
+#define SERVICE_SWAGGER_CODEGEN_GIT "c757d44b71d48df9e381fc8d35ea69bd12268127/c757d44"
 #define SERVICE_REQUIRED_KERNEL_VERSION "4.14.0"
+
 const std::string SERVICE_DATA_MODEL = R"POLYCUBE_DM(
 module lbrp {
   yang-version 1.1;
@@ -35,11 +36,6 @@ module lbrp {
   basemodel:service-version "2.0.0";
   basemodel:service-name "lbrp";
   basemodel:service-min-kernel-version "4.14.0";
-
-  extension cli-example {
-    argument "value";
-    description "A sample value used by the CLI generator";
-  }
 
   uses "basemodel:base-yang-module" {
     augment ports {
@@ -60,13 +56,13 @@ module lbrp {
     leaf ip-range {
         type inet:ipv4-prefix;
         description "Range of IP addresses of the clients that must be replaced";
-        lbrp:cli-example "10.2.0.0/24";
+        basemodel:cli-example "10.2.0.0/24";
     }
 
     leaf new_ip_range {
         type inet:ipv4-prefix;
         description "Range of IP addresses of the that must be used to replace client addresses";
-        lbrp:cli-example "10.3.0.0/24";
+        basemodel:cli-example "10.3.0.0/24";
     }
   }
 
@@ -76,19 +72,19 @@ module lbrp {
     leaf name {
       type string;
       description "Service name related to the backend server of the pool is connected to";
-      lbrp:cli-example "Service-nigx";
+      basemodel:cli-example "Service-nigx";
     }
 
     leaf vip {
       type inet:ipv4-address;
       description "Virtual IP (vip) of the service where clients connect to";
-      lbrp:cli-example "130.192.100.12";
+      basemodel:cli-example "130.192.100.12";
     }
 
     leaf vport {
       type inet:port-number;
       description "Port of the virtual server where clients connect to (this value is ignored in case of ICMP)";
-      lbrp:cli-example "80";
+      basemodel:cli-example "80";
     }
 
     leaf proto {
@@ -108,30 +104,36 @@ module lbrp {
       leaf name {
         type string;
         description "name";
-        lbrp:cli-example "backend1";
+        basemodel:cli-example "backend1";
       }
 
       leaf ip {
         type inet:ipv4-address;
         description "IP address of the backend server of the pool";
-        lbrp:cli-example "10.244.1.23";
+        basemodel:cli-example "10.244.1.23";
       }
 
       leaf port {
         type inet:port-number;
         description "Port where the server listen to (this value is ignored in case of ICMP)";
         mandatory true;
-        lbrp:cli-example "80";
+        basemodel:cli-example "80";
       }
 
       leaf weight {
         type uint16;
         description "Weight of the backend in the pool";
-        lbrp:cli-example "1";
+        basemodel:cli-example "1";
       }
     }
   }
 }
 
 )POLYCUBE_DM";
+
+extern "C" const char *data_model() {
+  return SERVICE_DATA_MODEL.c_str();
+}
+
+
 #include <polycube/services/shared_library.h>
