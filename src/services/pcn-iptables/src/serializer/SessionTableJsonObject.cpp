@@ -22,114 +22,45 @@ namespace swagger {
 namespace server {
 namespace model {
 
-SessionTableJsonObject::SessionTableJsonObject() {
+SessionTableJsonObject::SessionTableJsonObject() :
+  m_srcIsSet (false),
+  m_dstIsSet (false),
+  m_l4protoIsSet (false),
+  m_sportIsSet (false),
+  m_dportIsSet (false),
+  m_stateIsSet (false) { }
 
-  m_srcIsSet = false;
+SessionTableJsonObject::SessionTableJsonObject(nlohmann::json& val) :
+  m_srcIsSet (false),
+  m_dstIsSet (false),
+  m_l4protoIsSet (false),
+  m_sportIsSet (false),
+  m_dportIsSet (false),
+  m_stateIsSet (false) {
 
-  m_dstIsSet = false;
 
-  m_l4protoIsSet = false;
 
-  m_sportIsSet = false;
 
-  m_dportIsSet = false;
 
-  m_stateIsSet = false;
-}
-
-SessionTableJsonObject::~SessionTableJsonObject() {}
-
-void SessionTableJsonObject::validateKeys() {
-
-  if (!m_srcIsSet) {
-    throw std::runtime_error("Variable src is required");
+  if (val.count("state") != 0) {
+    setState(val.at("state").get<std::string>());
   }
-  if (!m_dstIsSet) {
-    throw std::runtime_error("Variable dst is required");
-  }
-  if (!m_l4protoIsSet) {
-    throw std::runtime_error("Variable l4proto is required");
-  }
-  if (!m_sportIsSet) {
-    throw std::runtime_error("Variable sport is required");
-  }
-  if (!m_dportIsSet) {
-    throw std::runtime_error("Variable dport is required");
-  }
-}
-
-void SessionTableJsonObject::validateMandatoryFields() {
-
-}
-
-void SessionTableJsonObject::validateParams() {
-
 }
 
 nlohmann::json SessionTableJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_srcIsSet) {
-    val["src"] = m_src;
-  }
-
-  if (m_dstIsSet) {
-    val["dst"] = m_dst;
-  }
-
-  if (m_l4protoIsSet) {
-    val["l4proto"] = m_l4proto;
-  }
-
-  if (m_sportIsSet) {
-    val["sport"] = m_sport;
-  }
-
-  if (m_dportIsSet) {
-    val["dport"] = m_dport;
-  }
-
+  val["src"] = m_src;
+  val["dst"] = m_dst;
+  val["l4proto"] = m_l4proto;
+  val["sport"] = m_sport;
+  val["dport"] = m_dport;
   if (m_stateIsSet) {
     val["state"] = m_state;
   }
 
 
   return val;
-}
-
-void SessionTableJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("src") != val.end()) {
-    setSrc(val.at("src"));
-  }
-
-  if (val.find("dst") != val.end()) {
-    setDst(val.at("dst"));
-  }
-
-  if (val.find("l4proto") != val.end()) {
-    setL4proto(val.at("l4proto"));
-  }
-
-  if (val.find("sport") != val.end()) {
-    setSport(val.at("sport"));
-  }
-
-  if (val.find("dport") != val.end()) {
-    setDport(val.at("dport"));
-  }
-
-  if (val.find("state") != val.end()) {
-    setState(val.at("state"));
-  }
 }
 
 nlohmann::json SessionTableJsonObject::helpKeys() {
@@ -208,9 +139,7 @@ bool SessionTableJsonObject::srcIsSet() const {
   return m_srcIsSet;
 }
 
-void SessionTableJsonObject::unsetSrc() {
-  m_srcIsSet = false;
-}
+
 
 
 
@@ -227,9 +156,7 @@ bool SessionTableJsonObject::dstIsSet() const {
   return m_dstIsSet;
 }
 
-void SessionTableJsonObject::unsetDst() {
-  m_dstIsSet = false;
-}
+
 
 
 
@@ -246,9 +173,7 @@ bool SessionTableJsonObject::l4protoIsSet() const {
   return m_l4protoIsSet;
 }
 
-void SessionTableJsonObject::unsetL4proto() {
-  m_l4protoIsSet = false;
-}
+
 
 
 
@@ -265,9 +190,7 @@ bool SessionTableJsonObject::sportIsSet() const {
   return m_sportIsSet;
 }
 
-void SessionTableJsonObject::unsetSport() {
-  m_sportIsSet = false;
-}
+
 
 
 
@@ -284,9 +207,7 @@ bool SessionTableJsonObject::dportIsSet() const {
   return m_dportIsSet;
 }
 
-void SessionTableJsonObject::unsetDport() {
-  m_dportIsSet = false;
-}
+
 
 
 
@@ -314,4 +235,5 @@ void SessionTableJsonObject::unsetState() {
 }
 }
 }
+
 

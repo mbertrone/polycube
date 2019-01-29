@@ -22,39 +22,29 @@ namespace swagger {
 namespace server {
 namespace model {
 
-ChainStatsJsonObject::ChainStatsJsonObject() {
+ChainStatsJsonObject::ChainStatsJsonObject() :
+  m_idIsSet (false),
+  m_pktsIsSet (false),
+  m_bytesIsSet (false) { }
 
-  m_idIsSet = false;
+ChainStatsJsonObject::ChainStatsJsonObject(nlohmann::json& val) :
+  m_idIsSet (false),
+  m_pktsIsSet (false),
+  m_bytesIsSet (false) {
 
-  m_pktsIsSet = false;
-
-  m_bytesIsSet = false;
-}
-
-ChainStatsJsonObject::~ChainStatsJsonObject() {}
-
-void ChainStatsJsonObject::validateKeys() {
-
-  if (!m_idIsSet) {
-    throw std::runtime_error("Variable id is required");
+  if (val.count("pkts") != 0) {
+    setPkts(val.at("pkts").get<uint64_t>());
   }
-}
 
-void ChainStatsJsonObject::validateMandatoryFields() {
-
-}
-
-void ChainStatsJsonObject::validateParams() {
-
+  if (val.count("bytes") != 0) {
+    setBytes(val.at("bytes").get<uint64_t>());
+  }
 }
 
 nlohmann::json ChainStatsJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_idIsSet) {
-    val["id"] = m_id;
-  }
-
+  val["id"] = m_id;
   if (m_pktsIsSet) {
     val["pkts"] = m_pkts;
   }
@@ -63,38 +53,8 @@ nlohmann::json ChainStatsJsonObject::toJson() const {
     val["bytes"] = m_bytes;
   }
 
-  if (m_descIsSet) {
-    val["description"] = m_desc;
-  }
 
   return val;
-}
-
-void ChainStatsJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("id") != val.end()) {
-    setId(val.at("id"));
-  }
-
-  if (val.find("pkts") != val.end()) {
-    setPkts(val.at("pkts"));
-  }
-
-  if (val.find("bytes") != val.end()) {
-    setBytes(val.at("bytes"));
-  }
-
-  if (val.find("description") != val.end()) {
-    setDesc(val.at("description"));
-  }
 }
 
 nlohmann::json ChainStatsJsonObject::helpKeys() {
@@ -158,9 +118,7 @@ bool ChainStatsJsonObject::idIsSet() const {
   return m_idIsSet;
 }
 
-void ChainStatsJsonObject::unsetId() {
-  m_idIsSet = false;
-}
+
 
 
 
@@ -200,25 +158,12 @@ void ChainStatsJsonObject::unsetBytes() {
   m_bytesIsSet = false;
 }
 
-std::string ChainStatsJsonObject::getDesc() const {
-  return m_desc;
-}
 
-void ChainStatsJsonObject::setDesc(std::string value) {
-  m_desc = value;
-  m_descIsSet = true;
-}
 
-bool ChainStatsJsonObject::descIsSet() const {
-  return m_descIsSet;
-}
-
-void ChainStatsJsonObject::unsetDesc() {
-  m_descIsSet = false;
-}
 
 }
 }
 }
 }
+
 

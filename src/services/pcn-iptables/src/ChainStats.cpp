@@ -38,7 +38,8 @@ ChainStatsJsonObject ChainStats::toJsonObject() {
   conf.setPkts(getPkts());
   conf.setBytes(getBytes());
   conf.setId(getId());
-  conf.setDesc(counter.getDesc());
+  // FIXME Nico
+  // conf.setDesc(counter.getDesc());
 
   return conf;
 }
@@ -176,7 +177,8 @@ std::shared_ptr<ChainStats> ChainStats::getDefaultActionCounters(
   /*Assigning an random ID just for showing*/
   csj.setId(parent.rules_.size());
 
-  csj.setDesc("DEFAULT");
+  // FIXME Nico
+  // csj.setDesc("DEFAULT");
 
   std::map<std::pair<uint8_t, ChainNameEnum>, Iptables::Program *> &programs =
       parent.parent_.programs_;

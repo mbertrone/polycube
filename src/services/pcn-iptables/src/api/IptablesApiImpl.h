@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "IptablesApi.h"
-
 
 #include <memory>
 #include <map>
@@ -50,11 +48,7 @@ namespace api {
 
 using namespace io::swagger::server::model;
 
-class IptablesApiImpl : public io::swagger::server::api::IptablesApi {
-public:
-  IptablesApiImpl();
-  ~IptablesApiImpl() { };
-
+namespace IptablesApiImpl {
   void create_iptables_by_id(const std::string &name, const IptablesJsonObject &value);
   ChainAppendOutputJsonObject create_iptables_chain_append_by_id(const std::string &name, const ChainNameEnum &chainName, const ChainAppendInputJsonObject &value);
   ChainApplyRulesOutputJsonObject create_iptables_chain_apply_rules_by_id(const std::string &name, const ChainNameEnum &chainName);
@@ -146,13 +140,7 @@ public:
   void update_iptables_ports_by_id(const std::string &name, const std::string &portsName, const PortsJsonObject &value);
   void update_iptables_ports_list_by_id(const std::string &name, const std::vector<PortsJsonObject> &value);
   void update_iptables_ports_peer_by_id(const std::string &name, const std::string &portsName, const std::string &value);
-
-private:
-  std::unordered_map<std::string, std::shared_ptr<Iptables>> cubes;
-  std::shared_ptr<Iptables> get_cube(const std::string &name);
-  std::mutex cubes_mutex;
-};
-
+}
 }
 }
 }

@@ -22,41 +22,43 @@ namespace swagger {
 namespace server {
 namespace model {
 
-ChainJsonObject::ChainJsonObject() {
+ChainJsonObject::ChainJsonObject() :
+  m_nameIsSet (false),
+  m_defaultIsSet (false),
+  m_statsIsSet (false),
+  m_ruleIsSet (false) { }
 
-  m_nameIsSet = false;
+ChainJsonObject::ChainJsonObject(nlohmann::json& val) :
+  m_nameIsSet (false),
+  m_defaultIsSet (false),
+  m_statsIsSet (false),
+  m_ruleIsSet (false) {
 
-  m_defaultIsSet = false;
-
-  m_statsIsSet = false;
-
-  m_ruleIsSet = false;
-}
-
-ChainJsonObject::~ChainJsonObject() {}
-
-void ChainJsonObject::validateKeys() {
-
-  if (!m_nameIsSet) {
-    throw std::runtime_error("Variable name is required");
+  if (val.count("default") != 0) {
+    setDefault(string_to_ActionEnum(val.at("default").get<std::string>()));
   }
-}
 
-void ChainJsonObject::validateMandatoryFields() {
+  m_stats.clear();
+  for (auto& item : val["stats"]) {
+    ChainStatsJsonObject newItem { item };
+    m_stats.push_back(newItem);
+  }
+  m_statsIsSet = !m_stats.empty();
 
-}
 
-void ChainJsonObject::validateParams() {
+  m_rule.clear();
+  for (auto& item : val["rule"]) {
+    ChainRuleJsonObject newItem { item };
+    m_rule.push_back(newItem);
+  }
+  m_ruleIsSet = !m_rule.empty();
 
 }
 
 nlohmann::json ChainJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_nameIsSet) {
-    val["name"] = ChainNameEnum_to_string(m_name);
-  }
-
+  val["name"] = ChainNameEnum_to_string(m_name);
   if (m_defaultIsSet) {
     val["default"] = ActionEnum_to_string(m_default);
   }
@@ -83,45 +85,6 @@ nlohmann::json ChainJsonObject::toJson() const {
   }
 
   return val;
-}
-
-void ChainJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("name") != val.end()) {
-    setName(string_to_ChainNameEnum(val.at("name")));
-  }
-
-  if (val.find("default") != val.end()) {
-    setDefault(string_to_ActionEnum(val.at("default")));
-  }
-
-  m_stats.clear();
-  for (auto& item : val["stats"]) {
-
-    ChainStatsJsonObject newItem;
-    newItem.fromJson(item);
-    m_stats.push_back(newItem);
-    m_statsIsSet = true;
-  }
-
-
-  m_rule.clear();
-  for (auto& item : val["rule"]) {
-
-    ChainRuleJsonObject newItem;
-    newItem.fromJson(item);
-    m_rule.push_back(newItem);
-    m_ruleIsSet = true;
-  }
-
 }
 
 nlohmann::json ChainJsonObject::helpKeys() {
@@ -207,9 +170,7 @@ bool ChainJsonObject::nameIsSet() const {
   return m_nameIsSet;
 }
 
-void ChainJsonObject::unsetName() {
-  m_nameIsSet = false;
-}
+
 
 std::string ChainJsonObject::ChainNameEnum_to_string(const ChainNameEnum &value){
   switch(value){
@@ -219,6 +180,8 @@ std::string ChainJsonObject::ChainNameEnum_to_string(const ChainNameEnum &value)
       return std::string("forward");
     case ChainNameEnum::OUTPUT:
       return std::string("output");
+    case ChainNameEnum::INVALID:
+      return std::string("invalid");
     case ChainNameEnum::INVALID_INGRESS:
       return std::string("invalid_ingress");
     case ChainNameEnum::INVALID_EGRESS:
@@ -235,6 +198,8 @@ ChainNameEnum ChainJsonObject::string_to_ChainNameEnum(const std::string &str){
     return ChainNameEnum::FORWARD;
   if (JsonObjectBase::iequals("output", str))
     return ChainNameEnum::OUTPUT;
+  if (JsonObjectBase::iequals("invalid", str))
+    return ChainNameEnum::INVALID;
   if (JsonObjectBase::iequals("invalid_ingress", str))
     return ChainNameEnum::INVALID_INGRESS;
   if (JsonObjectBase::iequals("invalid_egress", str))
@@ -327,4 +292,5 @@ void ChainJsonObject::unsetRule() {
 }
 }
 }
+
 
