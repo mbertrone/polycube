@@ -16,7 +16,7 @@ endmacro()
 # first argument is the service name used in the rest API
 # second argument is the folder of the service
 
-add_service(bridge pcn-bridge)
+#add_service(bridge pcn-bridge)
 add_service(ddosmitigator pcn-ddosmitigator)
 add_service(firewall pcn-firewall)
 add_service(helloworld pcn-helloworld)
@@ -33,3 +33,5 @@ add_service(iptables pcn-iptables)
 
 # save string to create code that load the services
 SET_PROPERTY(GLOBAL PROPERTY LOAD_SERVICES_ ${LOAD_SERVICES})
+
+install(DIRECTORY datamodel-common DESTINATION include/polycube)
