@@ -15,11 +15,6 @@ module ddosmitigator {
 
   uses "basemodel:base-yang-module";
 
-  extension cli-example {
-    argument "value";
-    description "A sample value used by the CLI generator";
-  }
-
   container stats {
     description "Statistics on dropped packets";
     config false;
@@ -54,7 +49,7 @@ module ddosmitigator {
       leaf ip {
         type string;
         description "Source IP Address";
-        ddosmitigator:cli-example "10.0.0.1";
+        basemodel:cli-example "10.0.0.1";
       }
 
       leaf drop-pkts {
@@ -71,7 +66,7 @@ module ddosmitigator {
       leaf ip {
         type string;
         description "Destination IP Address";
-        ddosmitigator:cli-example "10.0.0.2";
+        basemodel:cli-example "10.0.0.2";
       }
 
       leaf drop-pkts {

@@ -22,61 +22,88 @@ namespace swagger {
 namespace server {
 namespace model {
 
-DdosmitigatorJsonObject::DdosmitigatorJsonObject() {
+DdosmitigatorJsonObject::DdosmitigatorJsonObject() :
+  m_nameIsSet (false),
+  m_uuidIsSet (false),
+  m_type (CubeType::TC),
+  m_typeIsSet (true),
+  m_loglevel (DdosmitigatorLoglevelEnum::INFO),
+  m_loglevelIsSet (true),
+  m_portsIsSet (false),
+  m_statsIsSet (false),
+  m_activePortIsSet (false),
+  m_redirectPortIsSet (false),
+  m_blacklistSrcIsSet (false),
+  m_blacklistDstIsSet (false) { }
 
-  m_nameIsSet = false;
+DdosmitigatorJsonObject::DdosmitigatorJsonObject(nlohmann::json& val) :
+  m_nameIsSet (false),
+  m_uuidIsSet (false),
+  // Item with a default value, granted to be part of the request body
+  m_type (string_to_CubeType(val.at("type").get<std::string>())),
+  m_typeIsSet (true),
+  // Item with a default value, granted to be part of the request body
+  m_loglevel (string_to_DdosmitigatorLoglevelEnum(val.at("loglevel").get<std::string>())),
+  m_loglevelIsSet (true),
+  m_portsIsSet (false),
+  m_statsIsSet (false),
+  m_activePortIsSet (false),
+  m_redirectPortIsSet (false),
+  m_blacklistSrcIsSet (false),
+  m_blacklistDstIsSet (false) {
 
-  m_uuidIsSet = false;
-
-  m_type = CubeType::TC;
-  m_typeIsSet = false;
-
-  m_loglevel = DdosmitigatorLoglevelEnum::INFO;
-  m_loglevelIsSet = false;
-
-  m_portsIsSet = false;
-
-  m_statsIsSet = false;
-
-  m_activePortIsSet = false;
-
-  m_redirectPortIsSet = false;
-
-  m_blacklistSrcIsSet = false;
-
-  m_blacklistDstIsSet = false;
-}
-
-DdosmitigatorJsonObject::~DdosmitigatorJsonObject() {}
-
-void DdosmitigatorJsonObject::validateKeys() {
-
-  if (!m_nameIsSet) {
-    throw std::runtime_error("Variable name is required");
+  if (val.count("uuid") != 0) {
+    setUuid(val.at("uuid").get<std::string>());
   }
-}
 
-void DdosmitigatorJsonObject::validateMandatoryFields() {
 
-}
 
-void DdosmitigatorJsonObject::validateParams() {
-
-  if (m_uuidIsSet) {
-    std::string patter_value = R"PATTERN([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_uuid, e))
-      throw std::runtime_error("Variable uuid has not a valid format");
+  m_ports.clear();
+  for (auto& item : val["ports"]) {
+    PortsJsonObject newItem { item };
+    m_ports.push_back(newItem);
   }
+  m_portsIsSet = !m_ports.empty();
+
+
+  if (val.count("stats") != 0) {
+
+
+    if (!val["stats"].is_null()) {
+      StatsJsonObject newItem { val["stats"] };
+      setStats(newItem);
+    }
+  }
+
+  if (val.count("active-port") != 0) {
+    setActivePort(val.at("active-port").get<std::string>());
+  }
+
+  if (val.count("redirect-port") != 0) {
+    setRedirectPort(val.at("redirect-port").get<std::string>());
+  }
+
+  m_blacklistSrc.clear();
+  for (auto& item : val["blacklist-src"]) {
+    BlacklistSrcJsonObject newItem { item };
+    m_blacklistSrc.push_back(newItem);
+  }
+  m_blacklistSrcIsSet = !m_blacklistSrc.empty();
+
+
+  m_blacklistDst.clear();
+  for (auto& item : val["blacklist-dst"]) {
+    BlacklistDstJsonObject newItem { item };
+    m_blacklistDst.push_back(newItem);
+  }
+  m_blacklistDstIsSet = !m_blacklistDst.empty();
+
 }
 
 nlohmann::json DdosmitigatorJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_nameIsSet) {
-    val["name"] = m_name;
-  }
-
+  val["name"] = m_name;
   if (m_uuidIsSet) {
     val["uuid"] = m_uuid;
   }
@@ -132,81 +159,6 @@ nlohmann::json DdosmitigatorJsonObject::toJson() const {
   }
 
   return val;
-}
-
-void DdosmitigatorJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("name") != val.end()) {
-    setName(val.at("name"));
-  }
-
-  if (val.find("uuid") != val.end()) {
-    setUuid(val.at("uuid"));
-  }
-
-  if (val.find("type") != val.end()) {
-    setType(string_to_CubeType(val.at("type")));
-  }
-
-  if (val.find("loglevel") != val.end()) {
-    setLoglevel(string_to_DdosmitigatorLoglevelEnum(val.at("loglevel")));
-  }
-
-  m_ports.clear();
-  for (auto& item : val["ports"]) {
-
-    PortsJsonObject newItem;
-    newItem.fromJson(item);
-    m_ports.push_back(newItem);
-    m_portsIsSet = true;
-  }
-
-
-  if (val.find("stats") != val.end()) {
-
-
-    if (!val["stats"].is_null()) {
-      StatsJsonObject newItem;
-      newItem.fromJson(val["stats"]);
-      setStats(newItem);
-    }
-  }
-
-  if (val.find("active-port") != val.end()) {
-    setActivePort(val.at("active-port"));
-  }
-
-  if (val.find("redirect-port") != val.end()) {
-    setRedirectPort(val.at("redirect-port"));
-  }
-
-  m_blacklistSrc.clear();
-  for (auto& item : val["blacklist-src"]) {
-
-    BlacklistSrcJsonObject newItem;
-    newItem.fromJson(item);
-    m_blacklistSrc.push_back(newItem);
-    m_blacklistSrcIsSet = true;
-  }
-
-
-  m_blacklistDst.clear();
-  for (auto& item : val["blacklist-dst"]) {
-
-    BlacklistDstJsonObject newItem;
-    newItem.fromJson(item);
-    m_blacklistDst.push_back(newItem);
-    m_blacklistDstIsSet = true;
-  }
-
 }
 
 nlohmann::json DdosmitigatorJsonObject::helpKeys() {
@@ -332,9 +284,7 @@ bool DdosmitigatorJsonObject::nameIsSet() const {
   return m_nameIsSet;
 }
 
-void DdosmitigatorJsonObject::unsetName() {
-  m_nameIsSet = false;
-}
+
 
 
 
@@ -377,22 +327,22 @@ void DdosmitigatorJsonObject::unsetType() {
 std::string DdosmitigatorJsonObject::CubeType_to_string(const CubeType &value){
   switch(value){
     case CubeType::TC:
-      return std::string("TC");
+      return std::string("tc");
     case CubeType::XDP_SKB:
-      return std::string("XDP_SKB");
+      return std::string("xdp_skb");
     case CubeType::XDP_DRV:
-      return std::string("XDP_DRV");
+      return std::string("xdp_drv");
     default:
       throw std::runtime_error("Bad Ddosmitigator type");
   }
 }
 
 CubeType DdosmitigatorJsonObject::string_to_CubeType(const std::string &str){
-  if (JsonObjectBase::iequals("TC", str))
+  if (JsonObjectBase::iequals("tc", str))
     return CubeType::TC;
-  if (JsonObjectBase::iequals("XDP_SKB", str))
+  if (JsonObjectBase::iequals("xdp_skb", str))
     return CubeType::XDP_SKB;
-  if (JsonObjectBase::iequals("XDP_DRV", str))
+  if (JsonObjectBase::iequals("xdp_drv", str))
     return CubeType::XDP_DRV;
   throw std::runtime_error("Ddosmitigator type is invalid");
 }
@@ -591,4 +541,5 @@ void DdosmitigatorJsonObject::unsetBlacklistDst() {
 }
 }
 }
+
 

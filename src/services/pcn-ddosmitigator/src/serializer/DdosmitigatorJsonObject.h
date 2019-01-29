@@ -47,17 +47,13 @@ enum class DdosmitigatorLoglevelEnum {
 class  DdosmitigatorJsonObject : public JsonObjectBase {
 public:
   DdosmitigatorJsonObject();
-  virtual ~DdosmitigatorJsonObject();
+  DdosmitigatorJsonObject(nlohmann::json& json);
+  ~DdosmitigatorJsonObject() final = default;
 
   /////////////////////////////////////////////
   /// JsonObjectBase overrides
 
-  void validateKeys() override;
-  void validateMandatoryFields() override;
-  void validateParams() override;
-
-  nlohmann::json toJson() const override;
-  void fromJson(nlohmann::json& json) override;
+  nlohmann::json toJson() const final;
 
   static nlohmann::json helpKeys();
   static nlohmann::json helpElements();
@@ -152,7 +148,7 @@ public:
   void unsetBlacklistDst();
 
 
-protected:
+private:
   std::string m_name;
   bool m_nameIsSet;
   std::string m_uuid;
@@ -173,8 +169,6 @@ protected:
   bool m_blacklistSrcIsSet;
   std::vector<BlacklistDstJsonObject> m_blacklistDst;
   bool m_blacklistDstIsSet;
-
-  std::vector<std::string> allowedParameters_{ "name", "uuid", "type", "loglevel", "ports", "stats", "active-port", "redirect-port", "blacklist-src", "blacklist-dst" };
 };
 
 }

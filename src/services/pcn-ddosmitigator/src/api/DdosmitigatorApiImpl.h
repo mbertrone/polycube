@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "DdosmitigatorApi.h"
-
 
 #include <memory>
 #include <map>
@@ -42,11 +40,7 @@ namespace api {
 
 using namespace io::swagger::server::model;
 
-class DdosmitigatorApiImpl : public io::swagger::server::api::DdosmitigatorApi {
-public:
-  DdosmitigatorApiImpl();
-  ~DdosmitigatorApiImpl() { };
-
+namespace DdosmitigatorApiImpl {
   void create_ddosmitigator_blacklist_dst_by_id(const std::string &name, const std::string &ip, const BlacklistDstJsonObject &value);
   void create_ddosmitigator_blacklist_dst_list_by_id(const std::string &name, const std::vector<BlacklistDstJsonObject> &value);
   void create_ddosmitigator_blacklist_src_by_id(const std::string &name, const std::string &ip, const BlacklistSrcJsonObject &value);
@@ -105,13 +99,7 @@ public:
   void update_ddosmitigator_ports_list_by_id(const std::string &name, const std::vector<PortsJsonObject> &value);
   void update_ddosmitigator_ports_peer_by_id(const std::string &name, const std::string &portsName, const std::string &value);
   void update_ddosmitigator_redirect_port_by_id(const std::string &name, const std::string &value);
-
-private:
-  std::unordered_map<std::string, std::shared_ptr<Ddosmitigator>> cubes;
-  std::shared_ptr<Ddosmitigator> get_cube(const std::string &name);
-  std::mutex cubes_mutex;
-};
-
+}
 }
 }
 }
