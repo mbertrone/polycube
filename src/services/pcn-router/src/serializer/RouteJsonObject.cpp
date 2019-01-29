@@ -22,76 +22,37 @@ namespace swagger {
 namespace server {
 namespace model {
 
-RouteJsonObject::RouteJsonObject() {
+RouteJsonObject::RouteJsonObject() :
+  m_networkIsSet (false),
+  m_netmaskIsSet (false),
+  m_nexthopIsSet (false),
+  m_interfaceIsSet (false),
+  m_pathcost (1),
+  m_pathcostIsSet (true) { }
 
-  m_networkIsSet = false;
+RouteJsonObject::RouteJsonObject(nlohmann::json& val) :
+  m_networkIsSet (false),
+  m_netmaskIsSet (false),
+  m_nexthopIsSet (false),
+  m_interfaceIsSet (false),
+  // Item with a default value, granted to be part of the request body
+  m_pathcost (val.at("pathcost").get<int32_t>()),
+  m_pathcostIsSet (true) {
 
-  m_netmaskIsSet = false;
 
-  m_nexthopIsSet = false;
 
-  m_interfaceIsSet = false;
-
-  m_pathcost = 1;
-  m_pathcostIsSet = false;
-}
-
-RouteJsonObject::~RouteJsonObject() {}
-
-void RouteJsonObject::validateKeys() {
-
-  if (!m_networkIsSet) {
-    throw std::runtime_error("Variable network is required");
+  if (val.count("interface") != 0) {
+    setInterface(val.at("interface").get<std::string>());
   }
-  if (!m_netmaskIsSet) {
-    throw std::runtime_error("Variable netmask is required");
-  }
-  if (!m_nexthopIsSet) {
-    throw std::runtime_error("Variable nexthop is required");
-  }
-}
 
-void RouteJsonObject::validateMandatoryFields() {
-
-}
-
-void RouteJsonObject::validateParams() {
-
-  if (m_networkIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_network, e))
-      throw std::runtime_error("Variable network has not a valid format");
-  }
-  if (m_netmaskIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_netmask, e))
-      throw std::runtime_error("Variable netmask has not a valid format");
-  }
-  if (m_nexthopIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_nexthop, e))
-      throw std::runtime_error("Variable nexthop has not a valid format");
-  }
 }
 
 nlohmann::json RouteJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_networkIsSet) {
-    val["network"] = m_network;
-  }
-
-  if (m_netmaskIsSet) {
-    val["netmask"] = m_netmask;
-  }
-
-  if (m_nexthopIsSet) {
-    val["nexthop"] = m_nexthop;
-  }
-
+  val["network"] = m_network;
+  val["netmask"] = m_netmask;
+  val["nexthop"] = m_nexthop;
   if (m_interfaceIsSet) {
     val["interface"] = m_interface;
   }
@@ -102,37 +63,6 @@ nlohmann::json RouteJsonObject::toJson() const {
 
 
   return val;
-}
-
-void RouteJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("network") != val.end()) {
-    setNetwork(val.at("network"));
-  }
-
-  if (val.find("netmask") != val.end()) {
-    setNetmask(val.at("netmask"));
-  }
-
-  if (val.find("nexthop") != val.end()) {
-    setNexthop(val.at("nexthop"));
-  }
-
-  if (val.find("interface") != val.end()) {
-    setInterface(val.at("interface"));
-  }
-
-  if (val.find("pathcost") != val.end()) {
-    setPathcost(val.at("pathcost"));
-  }
 }
 
 nlohmann::json RouteJsonObject::helpKeys() {
@@ -210,9 +140,7 @@ bool RouteJsonObject::networkIsSet() const {
   return m_networkIsSet;
 }
 
-void RouteJsonObject::unsetNetwork() {
-  m_networkIsSet = false;
-}
+
 
 
 
@@ -229,9 +157,7 @@ bool RouteJsonObject::netmaskIsSet() const {
   return m_netmaskIsSet;
 }
 
-void RouteJsonObject::unsetNetmask() {
-  m_netmaskIsSet = false;
-}
+
 
 
 
@@ -248,9 +174,7 @@ bool RouteJsonObject::nexthopIsSet() const {
   return m_nexthopIsSet;
 }
 
-void RouteJsonObject::unsetNexthop() {
-  m_nexthopIsSet = false;
-}
+
 
 
 
@@ -297,4 +221,5 @@ void RouteJsonObject::unsetPathcost() {
 }
 }
 }
+
 

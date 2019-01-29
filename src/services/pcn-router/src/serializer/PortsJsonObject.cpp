@@ -22,79 +22,61 @@ namespace swagger {
 namespace server {
 namespace model {
 
-PortsJsonObject::PortsJsonObject() {
+PortsJsonObject::PortsJsonObject() :
+  m_nameIsSet (false),
+  m_uuidIsSet (false),
+  m_statusIsSet (false),
+  m_peerIsSet (false),
+  m_ipIsSet (false),
+  m_netmaskIsSet (false),
+  m_secondaryipIsSet (false),
+  m_macIsSet (false) { }
 
-  m_nameIsSet = false;
+PortsJsonObject::PortsJsonObject(nlohmann::json& val) :
+  m_nameIsSet (false),
+  m_uuidIsSet (false),
+  m_statusIsSet (false),
+  m_peerIsSet (false),
+  // Mandatory item
+  m_ip (val.at("ip").get<std::string>()),
+  m_ipIsSet (true),
+  // Mandatory item
+  m_netmask (val.at("netmask").get<std::string>()),
+  m_netmaskIsSet (true),
+  m_secondaryipIsSet (false),
+  m_macIsSet (false) {
 
-  m_uuidIsSet = false;
-
-  m_statusIsSet = false;
-
-  m_peerIsSet = false;
-
-  m_ipIsSet = false;
-
-  m_netmaskIsSet = false;
-
-  m_secondaryipIsSet = false;
-
-  m_macIsSet = false;
-}
-
-PortsJsonObject::~PortsJsonObject() {}
-
-void PortsJsonObject::validateKeys() {
-
-  if (!m_nameIsSet) {
-    throw std::runtime_error("Variable name is required");
+  if (val.count("uuid") != 0) {
+    setUuid(val.at("uuid").get<std::string>());
   }
-}
 
-void PortsJsonObject::validateMandatoryFields() {
+  if (val.count("status") != 0) {
+    setStatus(string_to_PortsStatusEnum(val.at("status").get<std::string>()));
+  }
 
-  if (!m_ipIsSet) {
-    throw std::runtime_error("Variable ip is required");
+  if (val.count("peer") != 0) {
+    setPeer(val.at("peer").get<std::string>());
   }
-  if (!m_netmaskIsSet) {
-    throw std::runtime_error("Variable netmask is required");
-  }
-}
 
-void PortsJsonObject::validateParams() {
 
-  if (m_uuidIsSet) {
-    std::string patter_value = R"PATTERN([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_uuid, e))
-      throw std::runtime_error("Variable uuid has not a valid format");
+
+  m_secondaryip.clear();
+  for (auto& item : val["secondaryip"]) {
+    PortsSecondaryipJsonObject newItem { item };
+    m_secondaryip.push_back(newItem);
   }
-  if (m_ipIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_ip, e))
-      throw std::runtime_error("Variable ip has not a valid format");
-  }
-  if (m_netmaskIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_netmask, e))
-      throw std::runtime_error("Variable netmask has not a valid format");
-  }
-  if (m_macIsSet) {
-    std::string patter_value = R"PATTERN([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_mac, e))
-      throw std::runtime_error("Variable mac has not a valid format");
+  m_secondaryipIsSet = !m_secondaryip.empty();
+
+
+  if (val.count("mac") != 0) {
+    setMac(val.at("mac").get<std::string>());
   }
 }
 
 nlohmann::json PortsJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_nameIsSet) {
-    val["name"] = m_name;
-  }
-
+  val["name"] = m_name;
   if (m_uuidIsSet) {
     val["uuid"] = m_uuid;
   }
@@ -125,55 +107,6 @@ nlohmann::json PortsJsonObject::toJson() const {
 
 
   return val;
-}
-
-void PortsJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("name") != val.end()) {
-    setName(val.at("name"));
-  }
-
-  if (val.find("uuid") != val.end()) {
-    setUuid(val.at("uuid"));
-  }
-
-  if (val.find("status") != val.end()) {
-    setStatus(string_to_PortsStatusEnum(val.at("status")));
-  }
-
-  if (val.find("peer") != val.end()) {
-    setPeer(val.at("peer"));
-  }
-
-  if (val.find("ip") != val.end()) {
-    setIp(val.at("ip"));
-  }
-
-  if (val.find("netmask") != val.end()) {
-    setNetmask(val.at("netmask"));
-  }
-
-  m_secondaryip.clear();
-  for (auto& item : val["secondaryip"]) {
-
-    PortsSecondaryipJsonObject newItem;
-    newItem.fromJson(item);
-    m_secondaryip.push_back(newItem);
-    m_secondaryipIsSet = true;
-  }
-
-
-  if (val.find("mac") != val.end()) {
-    setMac(val.at("mac"));
-  }
 }
 
 nlohmann::json PortsJsonObject::helpKeys() {
@@ -282,9 +215,7 @@ bool PortsJsonObject::nameIsSet() const {
   return m_nameIsSet;
 }
 
-void PortsJsonObject::unsetName() {
-  m_nameIsSet = false;
-}
+
 
 
 
@@ -376,9 +307,7 @@ bool PortsJsonObject::ipIsSet() const {
   return m_ipIsSet;
 }
 
-void PortsJsonObject::unsetIp() {
-  m_ipIsSet = false;
-}
+
 
 
 
@@ -395,9 +324,7 @@ bool PortsJsonObject::netmaskIsSet() const {
   return m_netmaskIsSet;
 }
 
-void PortsJsonObject::unsetNetmask() {
-  m_netmaskIsSet = false;
-}
+
 
 
 
@@ -444,4 +371,5 @@ void PortsJsonObject::unsetMac() {
 }
 }
 }
+
 
