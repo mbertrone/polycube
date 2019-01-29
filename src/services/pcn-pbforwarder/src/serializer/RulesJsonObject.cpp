@@ -22,83 +22,83 @@ namespace swagger {
 namespace server {
 namespace model {
 
-RulesJsonObject::RulesJsonObject() {
+RulesJsonObject::RulesJsonObject() :
+  m_idIsSet (false),
+  m_vlanIsSet (false),
+  m_srcMacIsSet (false),
+  m_dstMacIsSet (false),
+  m_srcIpIsSet (false),
+  m_dstIpIsSet (false),
+  m_l4Proto (RulesL4ProtoEnum::TCP),
+  m_l4ProtoIsSet (true),
+  m_srcPortIsSet (false),
+  m_dstPortIsSet (false),
+  m_inPortIsSet (false),
+  m_outPortIsSet (false),
+  m_action (RulesActionEnum::DROP),
+  m_actionIsSet (true) { }
 
-  m_idIsSet = false;
+RulesJsonObject::RulesJsonObject(nlohmann::json& val) :
+  m_idIsSet (false),
+  m_vlanIsSet (false),
+  m_srcMacIsSet (false),
+  m_dstMacIsSet (false),
+  m_srcIpIsSet (false),
+  m_dstIpIsSet (false),
+  // Item with a default value, granted to be part of the request body
+  m_l4Proto (string_to_RulesL4ProtoEnum(val.at("l4_proto").get<std::string>())),
+  m_l4ProtoIsSet (true),
+  m_srcPortIsSet (false),
+  m_dstPortIsSet (false),
+  m_inPortIsSet (false),
+  m_outPortIsSet (false),
+  // Item with a default value, granted to be part of the request body
+  m_action (string_to_RulesActionEnum(val.at("action").get<std::string>())),
+  m_actionIsSet (true) {
 
-  m_vlanIsSet = false;
-
-  m_srcMacIsSet = false;
-
-  m_dstMacIsSet = false;
-
-  m_srcIpIsSet = false;
-
-  m_dstIpIsSet = false;
-
-  m_l4Proto = RulesL4ProtoEnum::TCP;
-  m_l4ProtoIsSet = false;
-
-  m_srcPortIsSet = false;
-
-  m_dstPortIsSet = false;
-
-  m_inPortIsSet = false;
-
-  m_outPortIsSet = false;
-
-  m_action = RulesActionEnum::DROP;
-  m_actionIsSet = false;
-}
-
-RulesJsonObject::~RulesJsonObject() {}
-
-void RulesJsonObject::validateKeys() {
-
-  if (!m_idIsSet) {
-    throw std::runtime_error("Variable id is required");
+  if (val.count("vlan") != 0) {
+    setVlan(val.at("vlan").get<uint32_t>());
   }
-}
 
-void RulesJsonObject::validateMandatoryFields() {
+  if (val.count("src_mac") != 0) {
+    setSrcMac(val.at("src_mac").get<std::string>());
+  }
 
-}
+  if (val.count("dst_mac") != 0) {
+    setDstMac(val.at("dst_mac").get<std::string>());
+  }
 
-void RulesJsonObject::validateParams() {
+  if (val.count("src_ip") != 0) {
+    setSrcIp(val.at("src_ip").get<std::string>());
+  }
 
-  if (m_srcMacIsSet) {
-    std::string patter_value = R"PATTERN([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_srcMac, e))
-      throw std::runtime_error("Variable src_mac has not a valid format");
+  if (val.count("dst_ip") != 0) {
+    setDstIp(val.at("dst_ip").get<std::string>());
   }
-  if (m_dstMacIsSet) {
-    std::string patter_value = R"PATTERN([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_dstMac, e))
-      throw std::runtime_error("Variable dst_mac has not a valid format");
+
+
+  if (val.count("src_port") != 0) {
+    setSrcPort(val.at("src_port").get<uint16_t>());
   }
-  if (m_srcIpIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_srcIp, e))
-      throw std::runtime_error("Variable src_ip has not a valid format");
+
+  if (val.count("dst_port") != 0) {
+    setDstPort(val.at("dst_port").get<uint16_t>());
   }
-  if (m_dstIpIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_dstIp, e))
-      throw std::runtime_error("Variable dst_ip has not a valid format");
+
+  if (val.count("in_port") != 0) {
+    setInPort(val.at("in_port").get<std::string>());
   }
+
+  if (val.count("out_port") != 0) {
+    setOutPort(val.at("out_port").get<std::string>());
+  }
+
 }
 
 nlohmann::json RulesJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_idIsSet) {
-    val["id"] = m_id;
-  }
-
+  val["id"] = m_id;
   if (m_vlanIsSet) {
     val["vlan"] = m_vlan;
   }
@@ -145,65 +145,6 @@ nlohmann::json RulesJsonObject::toJson() const {
 
 
   return val;
-}
-
-void RulesJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("id") != val.end()) {
-    setId(val.at("id"));
-  }
-
-  if (val.find("vlan") != val.end()) {
-    setVlan(val.at("vlan"));
-  }
-
-  if (val.find("src_mac") != val.end()) {
-    setSrcMac(val.at("src_mac"));
-  }
-
-  if (val.find("dst_mac") != val.end()) {
-    setDstMac(val.at("dst_mac"));
-  }
-
-  if (val.find("src_ip") != val.end()) {
-    setSrcIp(val.at("src_ip"));
-  }
-
-  if (val.find("dst_ip") != val.end()) {
-    setDstIp(val.at("dst_ip"));
-  }
-
-  if (val.find("l4_proto") != val.end()) {
-    setL4Proto(string_to_RulesL4ProtoEnum(val.at("l4_proto")));
-  }
-
-  if (val.find("src_port") != val.end()) {
-    setSrcPort(val.at("src_port"));
-  }
-
-  if (val.find("dst_port") != val.end()) {
-    setDstPort(val.at("dst_port"));
-  }
-
-  if (val.find("in_port") != val.end()) {
-    setInPort(val.at("in_port"));
-  }
-
-  if (val.find("out_port") != val.end()) {
-    setOutPort(val.at("out_port"));
-  }
-
-  if (val.find("action") != val.end()) {
-    setAction(string_to_RulesActionEnum(val.at("action")));
-  }
 }
 
 nlohmann::json RulesJsonObject::helpKeys() {
@@ -356,9 +297,7 @@ bool RulesJsonObject::idIsSet() const {
   return m_idIsSet;
 }
 
-void RulesJsonObject::unsetId() {
-  m_idIsSet = false;
-}
+
 
 
 
@@ -616,4 +555,5 @@ RulesActionEnum RulesJsonObject::string_to_RulesActionEnum(const std::string &st
 }
 }
 }
+
 
