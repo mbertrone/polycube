@@ -22,43 +22,18 @@ namespace swagger {
 namespace server {
 namespace model {
 
-RuleSnatAppendInputJsonObject::RuleSnatAppendInputJsonObject() {
+RuleSnatAppendInputJsonObject::RuleSnatAppendInputJsonObject() :
+  m_internalNetIsSet (false),
+  m_externalIpIsSet (false) { }
 
-  m_internalNetIsSet = false;
+RuleSnatAppendInputJsonObject::RuleSnatAppendInputJsonObject(nlohmann::json& val) :
+  // Mandatory item
+  m_internalNet (val.at("internal-net").get<std::string>()),
+  m_internalNetIsSet (true),
+  // Mandatory item
+  m_externalIp (val.at("external-ip").get<std::string>()),
+  m_externalIpIsSet (true) {
 
-  m_externalIpIsSet = false;
-}
-
-RuleSnatAppendInputJsonObject::~RuleSnatAppendInputJsonObject() {}
-
-void RuleSnatAppendInputJsonObject::validateKeys() {
-
-}
-
-void RuleSnatAppendInputJsonObject::validateMandatoryFields() {
-
-  if (!m_internalNetIsSet) {
-    throw std::runtime_error("Variable internal-net is required");
-  }
-  if (!m_externalIpIsSet) {
-    throw std::runtime_error("Variable external-ip is required");
-  }
-}
-
-void RuleSnatAppendInputJsonObject::validateParams() {
-
-  if (m_internalNetIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(([0-9])|([1-2][0-9])|(3[0-2])))PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_internalNet, e))
-      throw std::runtime_error("Variable internal-net has not a valid format");
-  }
-  if (m_externalIpIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_externalIp, e))
-      throw std::runtime_error("Variable external-ip has not a valid format");
-  }
 }
 
 nlohmann::json RuleSnatAppendInputJsonObject::toJson() const {
@@ -68,25 +43,6 @@ nlohmann::json RuleSnatAppendInputJsonObject::toJson() const {
   val["external-ip"] = m_externalIp;
 
   return val;
-}
-
-void RuleSnatAppendInputJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("internal-net") != val.end()) {
-    setInternalNet(val.at("internal-net"));
-  }
-
-  if (val.find("external-ip") != val.end()) {
-    setExternalIp(val.at("external-ip"));
-  }
 }
 
 nlohmann::json RuleSnatAppendInputJsonObject::helpKeys() {
@@ -153,9 +109,7 @@ bool RuleSnatAppendInputJsonObject::internalNetIsSet() const {
   return m_internalNetIsSet;
 }
 
-void RuleSnatAppendInputJsonObject::unsetInternalNet() {
-  m_internalNetIsSet = false;
-}
+
 
 
 
@@ -172,9 +126,7 @@ bool RuleSnatAppendInputJsonObject::externalIpIsSet() const {
   return m_externalIpIsSet;
 }
 
-void RuleSnatAppendInputJsonObject::unsetExternalIp() {
-  m_externalIpIsSet = false;
-}
+
 
 
 
@@ -183,4 +135,5 @@ void RuleSnatAppendInputJsonObject::unsetExternalIp() {
 }
 }
 }
+
 

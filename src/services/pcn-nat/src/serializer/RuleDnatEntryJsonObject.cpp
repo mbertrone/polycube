@@ -22,84 +22,31 @@ namespace swagger {
 namespace server {
 namespace model {
 
-RuleDnatEntryJsonObject::RuleDnatEntryJsonObject() {
+RuleDnatEntryJsonObject::RuleDnatEntryJsonObject() :
+  m_idIsSet (false),
+  m_externalIpIsSet (false),
+  m_internalIpIsSet (false) { }
 
-  m_idIsSet = false;
+RuleDnatEntryJsonObject::RuleDnatEntryJsonObject(nlohmann::json& val) :
+  m_idIsSet (false),
+  // Mandatory item
+  m_externalIp (val.at("external-ip").get<std::string>()),
+  m_externalIpIsSet (true),
+  // Mandatory item
+  m_internalIp (val.at("internal-ip").get<std::string>()),
+  m_internalIpIsSet (true) {
 
-  m_externalIpIsSet = false;
 
-  m_internalIpIsSet = false;
-}
-
-RuleDnatEntryJsonObject::~RuleDnatEntryJsonObject() {}
-
-void RuleDnatEntryJsonObject::validateKeys() {
-
-  if (!m_idIsSet) {
-    throw std::runtime_error("Variable id is required");
-  }
-}
-
-void RuleDnatEntryJsonObject::validateMandatoryFields() {
-
-  if (!m_externalIpIsSet) {
-    throw std::runtime_error("Variable external-ip is required");
-  }
-  if (!m_internalIpIsSet) {
-    throw std::runtime_error("Variable internal-ip is required");
-  }
-}
-
-void RuleDnatEntryJsonObject::validateParams() {
-
-  if (m_externalIpIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_externalIp, e))
-      throw std::runtime_error("Variable external-ip has not a valid format");
-  }
-  if (m_internalIpIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_internalIp, e))
-      throw std::runtime_error("Variable internal-ip has not a valid format");
-  }
 }
 
 nlohmann::json RuleDnatEntryJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_idIsSet) {
-    val["id"] = m_id;
-  }
-
+  val["id"] = m_id;
   val["external-ip"] = m_externalIp;
   val["internal-ip"] = m_internalIp;
 
   return val;
-}
-
-void RuleDnatEntryJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("id") != val.end()) {
-    setId(val.at("id"));
-  }
-
-  if (val.find("external-ip") != val.end()) {
-    setExternalIp(val.at("external-ip"));
-  }
-
-  if (val.find("internal-ip") != val.end()) {
-    setInternalIp(val.at("internal-ip"));
-  }
 }
 
 nlohmann::json RuleDnatEntryJsonObject::helpKeys() {
@@ -171,9 +118,7 @@ bool RuleDnatEntryJsonObject::idIsSet() const {
   return m_idIsSet;
 }
 
-void RuleDnatEntryJsonObject::unsetId() {
-  m_idIsSet = false;
-}
+
 
 
 
@@ -190,9 +135,7 @@ bool RuleDnatEntryJsonObject::externalIpIsSet() const {
   return m_externalIpIsSet;
 }
 
-void RuleDnatEntryJsonObject::unsetExternalIp() {
-  m_externalIpIsSet = false;
-}
+
 
 
 
@@ -209,9 +152,7 @@ bool RuleDnatEntryJsonObject::internalIpIsSet() const {
   return m_internalIpIsSet;
 }
 
-void RuleDnatEntryJsonObject::unsetInternalIp() {
-  m_internalIpIsSet = false;
-}
+
 
 
 
@@ -220,4 +161,5 @@ void RuleDnatEntryJsonObject::unsetInternalIp() {
 }
 }
 }
+
 

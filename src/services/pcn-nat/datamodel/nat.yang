@@ -9,11 +9,6 @@ module nat {
     organization "Polycube open source project";
     description "YANG data model for the Polycube NAT service";
 
-    extension cli-example {
-        argument "value";
-        description "A sample value used by the CLI generator";
-    }
-
     basemodel:service-description "NAT Service";
     basemodel:service-version "1.0";
     basemodel:service-name "nat";
@@ -27,14 +22,15 @@ module nat {
                     enum INTERNAL { description "Internal interface of the NAT"; }
                 }
                 mandatory true;
-                config false;
+                config true;
+                basemodel:init-only-config;
                 description "Type of the NAT interface (e.g., EXTERNAL or INTERNAL)";
             }
 
             leaf ip {
                 type inet:ipv4-address;
                 description "IP address of the port. If the port is EXTERNAL this is the external ip address.";
-                nat:cli-example "9.45.21.4";
+                basemodel:cli-example "9.45.21.4";
             }
         }
     }
@@ -44,13 +40,13 @@ module nat {
             type inet:ipv4-prefix;
             mandatory true;
             description "Internal IP address (or subnet)";
-            nat:cli-example "10.0.0.0/24 or 10.0.0.1/32";
+            basemodel:cli-example "10.0.0.0/24 or 10.0.0.1/32";
         }
         leaf external-ip {
             type inet:ipv4-address;
             mandatory true;
             description "Natted source IP address";
-            nat:cli-example "8.8.8.8";
+            basemodel:cli-example "8.8.8.8";
         }
     }
 
@@ -59,13 +55,13 @@ module nat {
             type inet:ipv4-address;
             mandatory true;
             description "External destination IP address";
-            nat:cli-example "8.8.8.8";
+            basemodel:cli-example "8.8.8.8";
         }
         leaf internal-ip {
             type inet:ipv4-address;
             mandatory true;
             description "Internal destination IP address";
-            nat:cli-example "10.0.0.1";
+            basemodel:cli-example "10.0.0.1";
         }
     }
 
@@ -74,7 +70,7 @@ module nat {
             type inet:ipv4-address;
             mandatory true;
             description "External destination IP address";
-            nat:cli-example "8.8.8.8";
+            basemodel:cli-example "8.8.8.8";
         }
         leaf external-port {
             type inet:port-number;
@@ -89,7 +85,7 @@ module nat {
             type inet:ipv4-address;
             mandatory true;
             description "Internal destination IP address";
-            nat:cli-example "10.0.0.1";
+            basemodel:cli-example "10.0.0.1";
         }
         leaf internal-port {
             type inet:port-number;

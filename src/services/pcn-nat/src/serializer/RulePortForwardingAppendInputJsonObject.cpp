@@ -22,65 +22,34 @@ namespace swagger {
 namespace server {
 namespace model {
 
-RulePortForwardingAppendInputJsonObject::RulePortForwardingAppendInputJsonObject() {
+RulePortForwardingAppendInputJsonObject::RulePortForwardingAppendInputJsonObject() :
+  m_externalIpIsSet (false),
+  m_externalPortIsSet (false),
+  m_protoIsSet (false),
+  m_internalIpIsSet (false),
+  m_internalPortIsSet (false) { }
 
-  m_externalIpIsSet = false;
+RulePortForwardingAppendInputJsonObject::RulePortForwardingAppendInputJsonObject(nlohmann::json& val) :
+  // Mandatory item
+  m_externalIp (val.at("external-ip").get<std::string>()),
+  m_externalIpIsSet (true),
+  // Mandatory item
+  m_externalPort (val.at("external-port").get<uint16_t>()),
+  m_externalPortIsSet (true),
+  m_protoIsSet (false),
+  // Mandatory item
+  m_internalIp (val.at("internal-ip").get<std::string>()),
+  m_internalIpIsSet (true),
+  // Mandatory item
+  m_internalPort (val.at("internal-port").get<uint16_t>()),
+  m_internalPortIsSet (true) {
 
-  m_externalPortIsSet = false;
 
-  m_protoIsSet = false;
-
-  m_internalIpIsSet = false;
-
-  m_internalPortIsSet = false;
-}
-
-RulePortForwardingAppendInputJsonObject::~RulePortForwardingAppendInputJsonObject() {}
-
-void RulePortForwardingAppendInputJsonObject::validateKeys() {
-
-}
-
-void RulePortForwardingAppendInputJsonObject::validateMandatoryFields() {
-
-  if (!m_externalIpIsSet) {
-    throw std::runtime_error("Variable external-ip is required");
+  if (val.count("proto") != 0) {
+    setProto(val.at("proto").get<std::string>());
   }
-  if (!m_externalPortIsSet) {
-    throw std::runtime_error("Variable external-port is required");
-  }
-  if (!m_internalIpIsSet) {
-    throw std::runtime_error("Variable internal-ip is required");
-  }
-  if (!m_internalPortIsSet) {
-    throw std::runtime_error("Variable internal-port is required");
-  }
-}
 
-void RulePortForwardingAppendInputJsonObject::validateParams() {
 
-  if (m_externalIpIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_externalIp, e))
-      throw std::runtime_error("Variable external-ip has not a valid format");
-  }
-  if (m_externalPortIsSet) {
-    if (m_externalPort < 0 || m_externalPort > 65535) {
-      throw std::runtime_error("Variable external-port is not in the range");
-    }
-  }
-  if (m_internalIpIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_internalIp, e))
-      throw std::runtime_error("Variable internal-ip has not a valid format");
-  }
-  if (m_internalPortIsSet) {
-    if (m_internalPort < 0 || m_internalPort > 65535) {
-      throw std::runtime_error("Variable internal-port is not in the range");
-    }
-  }
 }
 
 nlohmann::json RulePortForwardingAppendInputJsonObject::toJson() const {
@@ -96,37 +65,6 @@ nlohmann::json RulePortForwardingAppendInputJsonObject::toJson() const {
   val["internal-port"] = m_internalPort;
 
   return val;
-}
-
-void RulePortForwardingAppendInputJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("external-ip") != val.end()) {
-    setExternalIp(val.at("external-ip"));
-  }
-
-  if (val.find("external-port") != val.end()) {
-    setExternalPort(val.at("external-port"));
-  }
-
-  if (val.find("proto") != val.end()) {
-    setProto(val.at("proto"));
-  }
-
-  if (val.find("internal-ip") != val.end()) {
-    setInternalIp(val.at("internal-ip"));
-  }
-
-  if (val.find("internal-port") != val.end()) {
-    setInternalPort(val.at("internal-port"));
-  }
 }
 
 nlohmann::json RulePortForwardingAppendInputJsonObject::helpKeys() {
@@ -220,9 +158,7 @@ bool RulePortForwardingAppendInputJsonObject::externalIpIsSet() const {
   return m_externalIpIsSet;
 }
 
-void RulePortForwardingAppendInputJsonObject::unsetExternalIp() {
-  m_externalIpIsSet = false;
-}
+
 
 
 
@@ -239,9 +175,7 @@ bool RulePortForwardingAppendInputJsonObject::externalPortIsSet() const {
   return m_externalPortIsSet;
 }
 
-void RulePortForwardingAppendInputJsonObject::unsetExternalPort() {
-  m_externalPortIsSet = false;
-}
+
 
 
 
@@ -277,9 +211,7 @@ bool RulePortForwardingAppendInputJsonObject::internalIpIsSet() const {
   return m_internalIpIsSet;
 }
 
-void RulePortForwardingAppendInputJsonObject::unsetInternalIp() {
-  m_internalIpIsSet = false;
-}
+
 
 
 
@@ -296,9 +228,7 @@ bool RulePortForwardingAppendInputJsonObject::internalPortIsSet() const {
   return m_internalPortIsSet;
 }
 
-void RulePortForwardingAppendInputJsonObject::unsetInternalPort() {
-  m_internalPortIsSet = false;
-}
+
 
 
 
@@ -307,4 +237,5 @@ void RulePortForwardingAppendInputJsonObject::unsetInternalPort() {
 }
 }
 }
+
 

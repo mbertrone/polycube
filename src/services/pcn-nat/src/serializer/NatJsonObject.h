@@ -46,17 +46,13 @@ enum class NatLoglevelEnum {
 class  NatJsonObject : public JsonObjectBase {
 public:
   NatJsonObject();
-  virtual ~NatJsonObject();
+  NatJsonObject(nlohmann::json& json);
+  ~NatJsonObject() final = default;
 
   /////////////////////////////////////////////
   /// JsonObjectBase overrides
 
-  void validateKeys() override;
-  void validateMandatoryFields() override;
-  void validateParams() override;
-
-  nlohmann::json toJson() const override;
-  void fromJson(nlohmann::json& json) override;
+  nlohmann::json toJson() const final;
 
   static nlohmann::json helpKeys();
   static nlohmann::json helpElements();
@@ -127,7 +123,7 @@ public:
   void unsetNattingTable();
 
 
-protected:
+private:
   std::string m_name;
   bool m_nameIsSet;
   std::string m_uuid;
@@ -142,8 +138,6 @@ protected:
   bool m_ruleIsSet;
   std::vector<NattingTableJsonObject> m_nattingTable;
   bool m_nattingTableIsSet;
-
-  std::vector<std::string> allowedParameters_{ "name", "uuid", "type", "loglevel", "ports", "rule", "natting-table" };
 };
 
 }

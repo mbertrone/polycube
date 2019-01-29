@@ -15,10 +15,11 @@
 #include "api/NatApiImpl.h"
 #define MANAGER_TYPE io::swagger::server::api::NatApiImpl
 #define SERVICE_DESCRIPTION "NAT Service"
-#define SERVICE_VERSION "2.0"
+#define SERVICE_VERSION "1.0"
 #define SERVICE_PYANG_GIT ""
-#define SERVICE_SWAGGER_CODEGEN_GIT "polycube/50b9d4f"
+#define SERVICE_SWAGGER_CODEGEN_GIT "c757d44b71d48df9e381fc8d35ea69bd12268127/c757d44"
 #define SERVICE_REQUIRED_KERNEL_VERSION "4.14.0"
+
 const std::string SERVICE_DATA_MODEL = R"POLYCUBE_DM(
 module nat {
     yang-version 1.1;
@@ -31,11 +32,6 @@ module nat {
     organization "Polycube open source project";
     description "YANG data model for the Polycube NAT service";
 
-    extension cli-example {
-        argument "value";
-        description "A sample value used by the CLI generator";
-    }
-
     basemodel:service-description "NAT Service";
     basemodel:service-version "1.0";
     basemodel:service-name "nat";
@@ -45,18 +41,19 @@ module nat {
         augment ports {
             leaf type {
                 type enumeration {
-                    enum EXTERNAL { description "EXTERNAL interface of the NAT"; }
-                    enum INTERNAL { description "INTERNAL interface of the NAT"; }
+                    enum EXTERNAL { description "External interface of the NAT"; }
+                    enum INTERNAL { description "Internal interface of the NAT"; }
                 }
                 mandatory true;
-                config false;
+                config true;
+                basemodel:init-only-config;
                 description "Type of the NAT interface (e.g., EXTERNAL or INTERNAL)";
             }
 
             leaf ip {
                 type inet:ipv4-address;
                 description "IP address of the port. If the port is EXTERNAL this is the external ip address.";
-                nat:cli-example "9.45.21.4";
+                basemodel:cli-example "9.45.21.4";
             }
         }
     }
@@ -66,13 +63,13 @@ module nat {
             type inet:ipv4-prefix;
             mandatory true;
             description "Internal IP address (or subnet)";
-            nat:cli-example "10.0.0.0/24 or 10.0.0.1/32";
+            basemodel:cli-example "10.0.0.0/24 or 10.0.0.1/32";
         }
         leaf external-ip {
             type inet:ipv4-address;
             mandatory true;
             description "Natted source IP address";
-            nat:cli-example "8.8.8.8";
+            basemodel:cli-example "8.8.8.8";
         }
     }
 
@@ -81,13 +78,13 @@ module nat {
             type inet:ipv4-address;
             mandatory true;
             description "External destination IP address";
-            nat:cli-example "8.8.8.8";
+            basemodel:cli-example "8.8.8.8";
         }
         leaf internal-ip {
             type inet:ipv4-address;
             mandatory true;
             description "Internal destination IP address";
-            nat:cli-example "10.0.0.1";
+            basemodel:cli-example "10.0.0.1";
         }
     }
 
@@ -96,7 +93,7 @@ module nat {
             type inet:ipv4-address;
             mandatory true;
             description "External destination IP address";
-            nat:cli-example "8.8.8.8";
+            basemodel:cli-example "8.8.8.8";
         }
         leaf external-port {
             type inet:port-number;
@@ -111,7 +108,7 @@ module nat {
             type inet:ipv4-address;
             mandatory true;
             description "Internal destination IP address";
-            nat:cli-example "10.0.0.1";
+            basemodel:cli-example "10.0.0.1";
         }
         leaf internal-port {
             type inet:port-number;
@@ -256,4 +253,10 @@ module nat {
 }
 
 )POLYCUBE_DM";
+
+extern "C" const char *data_model() {
+  return SERVICE_DATA_MODEL.c_str();
+}
+
+
 #include <polycube/services/shared_library.h>

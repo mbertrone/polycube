@@ -22,110 +22,51 @@ namespace swagger {
 namespace server {
 namespace model {
 
-NattingTableJsonObject::NattingTableJsonObject() {
+NattingTableJsonObject::NattingTableJsonObject() :
+  m_internalSrcIsSet (false),
+  m_internalDstIsSet (false),
+  m_internalSportIsSet (false),
+  m_internalDportIsSet (false),
+  m_protoIsSet (false),
+  m_originatingRuleIsSet (false),
+  m_externalIpIsSet (false),
+  m_externalPortIsSet (false) { }
 
-  m_internalSrcIsSet = false;
+NattingTableJsonObject::NattingTableJsonObject(nlohmann::json& val) :
+  m_internalSrcIsSet (false),
+  m_internalDstIsSet (false),
+  m_internalSportIsSet (false),
+  m_internalDportIsSet (false),
+  m_protoIsSet (false),
+  m_originatingRuleIsSet (false),
+  m_externalIpIsSet (false),
+  m_externalPortIsSet (false) {
 
-  m_internalDstIsSet = false;
 
-  m_internalSportIsSet = false;
 
-  m_internalDportIsSet = false;
 
-  m_protoIsSet = false;
 
-  m_originatingRuleIsSet = false;
-
-  m_externalIpIsSet = false;
-
-  m_externalPortIsSet = false;
-}
-
-NattingTableJsonObject::~NattingTableJsonObject() {}
-
-void NattingTableJsonObject::validateKeys() {
-
-  if (!m_internalSrcIsSet) {
-    throw std::runtime_error("Variable internal-src is required");
+  if (val.count("originating-rule") != 0) {
+    setOriginatingRule(string_to_NattingTableOriginatingRuleEnum(val.at("originating-rule").get<std::string>()));
   }
-  if (!m_internalDstIsSet) {
-    throw std::runtime_error("Variable internal-dst is required");
-  }
-  if (!m_internalSportIsSet) {
-    throw std::runtime_error("Variable internal-sport is required");
-  }
-  if (!m_internalDportIsSet) {
-    throw std::runtime_error("Variable internal-dport is required");
-  }
-  if (!m_protoIsSet) {
-    throw std::runtime_error("Variable proto is required");
-  }
-}
 
-void NattingTableJsonObject::validateMandatoryFields() {
+  if (val.count("external-ip") != 0) {
+    setExternalIp(val.at("external-ip").get<std::string>());
+  }
 
-}
-
-void NattingTableJsonObject::validateParams() {
-
-  if (m_internalSrcIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_internalSrc, e))
-      throw std::runtime_error("Variable internal-src has not a valid format");
-  }
-  if (m_internalDstIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_internalDst, e))
-      throw std::runtime_error("Variable internal-dst has not a valid format");
-  }
-  if (m_internalSportIsSet) {
-    if (m_internalSport < 0 || m_internalSport > 65535) {
-      throw std::runtime_error("Variable internal-sport is not in the range");
-    }
-  }
-  if (m_internalDportIsSet) {
-    if (m_internalDport < 0 || m_internalDport > 65535) {
-      throw std::runtime_error("Variable internal-dport is not in the range");
-    }
-  }
-  if (m_externalIpIsSet) {
-    std::string patter_value = R"PATTERN((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\p{N}\p{L}]+)?)PATTERN";
-    std::regex e (patter_value);
-    if (!std::regex_match(m_externalIp, e))
-      throw std::runtime_error("Variable external-ip has not a valid format");
-  }
-  if (m_externalPortIsSet) {
-    if (m_externalPort < 0 || m_externalPort > 65535) {
-      throw std::runtime_error("Variable external-port is not in the range");
-    }
+  if (val.count("external-port") != 0) {
+    setExternalPort(val.at("external-port").get<uint16_t>());
   }
 }
 
 nlohmann::json NattingTableJsonObject::toJson() const {
   nlohmann::json val = nlohmann::json::object();
 
-  if (m_internalSrcIsSet) {
-    val["internal-src"] = m_internalSrc;
-  }
-
-  if (m_internalDstIsSet) {
-    val["internal-dst"] = m_internalDst;
-  }
-
-  if (m_internalSportIsSet) {
-    val["internal-sport"] = m_internalSport;
-  }
-
-  if (m_internalDportIsSet) {
-    val["internal-dport"] = m_internalDport;
-  }
-
-  if (m_protoIsSet) {
-    val["proto"] = m_proto;
-  }
-
+  val["internal-src"] = m_internalSrc;
+  val["internal-dst"] = m_internalDst;
+  val["internal-sport"] = m_internalSport;
+  val["internal-dport"] = m_internalDport;
+  val["proto"] = m_proto;
   if (m_originatingRuleIsSet) {
     val["originating-rule"] = NattingTableOriginatingRuleEnum_to_string(m_originatingRule);
   }
@@ -140,49 +81,6 @@ nlohmann::json NattingTableJsonObject::toJson() const {
 
 
   return val;
-}
-
-void NattingTableJsonObject::fromJson(nlohmann::json& val) {
-  for(nlohmann::json::iterator it = val.begin(); it != val.end(); ++it) {
-    std::string key = it.key();
-    bool found = (std::find(allowedParameters_.begin(), allowedParameters_.end(), key) != allowedParameters_.end());
-    if (!found) {
-      throw std::runtime_error(key + " is not a valid parameter");
-      return;
-    }
-  }
-
-  if (val.find("internal-src") != val.end()) {
-    setInternalSrc(val.at("internal-src"));
-  }
-
-  if (val.find("internal-dst") != val.end()) {
-    setInternalDst(val.at("internal-dst"));
-  }
-
-  if (val.find("internal-sport") != val.end()) {
-    setInternalSport(val.at("internal-sport"));
-  }
-
-  if (val.find("internal-dport") != val.end()) {
-    setInternalDport(val.at("internal-dport"));
-  }
-
-  if (val.find("proto") != val.end()) {
-    setProto(val.at("proto"));
-  }
-
-  if (val.find("originating-rule") != val.end()) {
-    setOriginatingRule(string_to_NattingTableOriginatingRuleEnum(val.at("originating-rule")));
-  }
-
-  if (val.find("external-ip") != val.end()) {
-    setExternalIp(val.at("external-ip"));
-  }
-
-  if (val.find("external-port") != val.end()) {
-    setExternalPort(val.at("external-port"));
-  }
 }
 
 nlohmann::json NattingTableJsonObject::helpKeys() {
@@ -283,9 +181,7 @@ bool NattingTableJsonObject::internalSrcIsSet() const {
   return m_internalSrcIsSet;
 }
 
-void NattingTableJsonObject::unsetInternalSrc() {
-  m_internalSrcIsSet = false;
-}
+
 
 
 
@@ -302,9 +198,7 @@ bool NattingTableJsonObject::internalDstIsSet() const {
   return m_internalDstIsSet;
 }
 
-void NattingTableJsonObject::unsetInternalDst() {
-  m_internalDstIsSet = false;
-}
+
 
 
 
@@ -321,9 +215,7 @@ bool NattingTableJsonObject::internalSportIsSet() const {
   return m_internalSportIsSet;
 }
 
-void NattingTableJsonObject::unsetInternalSport() {
-  m_internalSportIsSet = false;
-}
+
 
 
 
@@ -340,9 +232,7 @@ bool NattingTableJsonObject::internalDportIsSet() const {
   return m_internalDportIsSet;
 }
 
-void NattingTableJsonObject::unsetInternalDport() {
-  m_internalDportIsSet = false;
-}
+
 
 
 
@@ -359,9 +249,7 @@ bool NattingTableJsonObject::protoIsSet() const {
   return m_protoIsSet;
 }
 
-void NattingTableJsonObject::unsetProto() {
-  m_protoIsSet = false;
-}
+
 
 
 
@@ -406,7 +294,6 @@ NattingTableOriginatingRuleEnum NattingTableJsonObject::string_to_NattingTableOr
     return NattingTableOriginatingRuleEnum::MASQUERADE;
   if (JsonObjectBase::iequals("portforwarding", str))
     return NattingTableOriginatingRuleEnum::PORTFORWARDING;
-
   throw std::runtime_error("NattingTable originatingRule is invalid");
 }
 
@@ -454,4 +341,5 @@ void NattingTableJsonObject::unsetExternalPort() {
 }
 }
 }
+
 
