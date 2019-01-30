@@ -21,7 +21,6 @@
 #include <list>
 
 #include "polycube/services/guid.h"
-#include "polycube/services/http.h"
 #include "polycube/services/json.hpp"
 #include "service_controller.h"
 
@@ -30,9 +29,6 @@
 #include "netlink.h"
 
 using json = nlohmann::json;
-
-using polycube::service::HttpHandleRequest;
-using polycube::service::HttpHandleResponse;
 
 namespace polycube {
 namespace polycubed {
