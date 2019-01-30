@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Polycube Authors
+ * Copyright 2018 The Polycube Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #pragma once
 
-#include <dlfcn.h>
-#include <iostream>
-#include <string>
+#include <memory>
 
-#include <spdlog/spdlog.h>
+#include "polycube/services/management_interface.h"
+#include "server/Resources/Endpoint/Service.h"
 
-namespace polycube {
-namespace polycubed {
-
-class DynamicLibrary {
+namespace polycube::polycubed {
+class ManagementInterface : public service::ManagementInterface {
  public:
-  DynamicLibrary();
-  DynamicLibrary(const std::string &lib_name);
-  ~DynamicLibrary();
+  inline const std::shared_ptr<polycubed::Rest::Resources::Endpoint::Service>
+  get_service() {
+    return service_;
+  }
 
-  void setLibName(const std::string &lib_name);
-  bool load();
-  void unload();
-  bool loaded() const;
-  void *loadFunction(std::string funcName) const;
-
- private:
-  std::string lib_name_;
-  void *lib_;
-  void *loadLibrary();
+ protected:
+  ~ManagementInterface() override {
+    service_->ClearCubes();
+  };
+  std::shared_ptr<polycubed::Rest::Resources::Endpoint::Service> service_;
 };
-
-}  // namespace polycubed
-}  // namespace polycube
+}  // namespace polycube::polycubed

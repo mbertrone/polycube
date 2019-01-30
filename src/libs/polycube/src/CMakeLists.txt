@@ -8,9 +8,6 @@ add_definitions(-DGUID_LIBUUID)
 add_library(polycube STATIC
   port.cpp
   table.cpp
-  http_router.cpp
-  http.cpp
-  http_defs.cpp
   utils.cpp
   guid.cpp
   common.cpp)
