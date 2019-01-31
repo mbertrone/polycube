@@ -34,7 +34,7 @@
 namespace polycube {
 namespace service {
 
-extern "C" ServiceMetadata init(CubeFactory *factory, std::string logfile);
+extern "C" ServiceMetadata init(CubeFactory *factory, const char *logfile);
 extern CubeFactory *factory_;
 extern std::string logfile_;
 
