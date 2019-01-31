@@ -40,11 +40,7 @@ namespace polycubed {
 class PolycubedCore {
  public:
   PolycubedCore();
-  ~PolycubedCore();
-
-  void control_handler(const std::string &service,
-                       const HttpHandleRequest &request,
-                       HttpHandleResponse &response);
+  ~PolycubedCore() = default;
 
   void add_servicectrl(const std::string &name, const std::string &path);
   std::string get_servicectrl(const std::string &name);
