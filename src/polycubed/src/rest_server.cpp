@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "rest_server.h"
+
+#include <string>
+#include <vector>
+
+#include "polycubed_core.h"
 #include "service_controller.h"
 #include "version.h"
 
@@ -23,18 +27,22 @@ namespace polycubed {
 
 using polycube::service::HelpType;
 
-// these variables are neded in the client_verify callback, they need to be
-// static.
+std::shared_ptr<Pistache::Rest::Router> RestServer::router_;
 std::string RestServer::whitelist_cert_path;
 std::string RestServer::blacklist_cert_path;
 
 // start http server for Management APIs
 // Incapsultate a core object // TODO probably there are best ways...
-RestServer::RestServer(Address addr, PolycubedCore &core)
+RestServer::RestServer(Pistache::Address addr, PolycubedCore &core)
     : core(core),
-      httpEndpoint(std::make_shared<Http::Endpoint>(addr)),
+      httpEndpoint_(std::make_unique<Pistache::Http::Endpoint>(addr)),
       logger(spdlog::get("polycubed")) {
   logger->info("rest server listening on '{0}:{1}'", addr.host(), addr.port());
+  RestServer::router_ = std::make_shared<Pistache::Rest::Router>();
+}
+
+std::shared_ptr<Pistache::Rest::Router> RestServer::Router() {
+  return RestServer::router_;
 }
 
 static X509_STORE_CTX *load_certificates(const char *path) {
@@ -107,17 +115,18 @@ void RestServer::init(size_t thr, const std::string &server_cert,
                       const std::string &whitelist_cert_path_,
                       const std::string &blacklist_cert_path_) {
   logger->debug("rest server will use {0} thread(s)", thr);
-  auto opts = Http::Endpoint::options().threads(thr).flags(
-      Tcp::Options::InstallSignalHandler | Tcp::Options::ReuseAddr);
-  httpEndpoint->init(opts);
+  auto opts = Pistache::Http::Endpoint::options().threads(thr).flags(
+      Pistache::Tcp::Options::InstallSignalHandler |
+      Pistache::Tcp::Options::ReuseAddr);
+  httpEndpoint_->init(opts);
 
   if (!server_cert.empty()) {
-    httpEndpoint->useSSL(server_cert, server_key);
+    httpEndpoint_->useSSL(server_cert, server_key);
   }
 
   if (!root_ca_cert.empty() || !whitelist_cert_path_.empty() ||
       !blacklist_cert_path_.empty()) {
-    httpEndpoint->useSSLAuth(root_ca_cert, "", client_verify_callback);
+    httpEndpoint_->useSSLAuth(root_ca_cert, "", client_verify_callback);
   }
 
   RestServer::whitelist_cert_path = whitelist_cert_path_;
@@ -128,79 +137,78 @@ void RestServer::init(size_t thr, const std::string &server_cert,
 
 void RestServer::start() {
   logger->info("rest server starting ...");
-  httpEndpoint->setHandler(router.handler());
-  // httpEndpoint->serve();
-  httpEndpoint->serveThreaded();
+  httpEndpoint_->setHandler(Pistache::Rest::Router::handler(router_));
+  httpEndpoint_->serveThreaded();
 }
 
 void RestServer::shutdown() {
   logger->info("shutting down rest server ...");
   try {
-    httpEndpoint->shutdown();
+    httpEndpoint_->shutdown();
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
   }
 }
 
 void RestServer::setup_routes() {
-  using namespace Pistache::Rest;
+  using Pistache::Rest::Routes::bind;
+  router_->options(base + std::string("/"),
+                   bind(&RestServer::root_handler, this));
 
-  Routes::Options(router, base + std::string("/"),
-                  Routes::bind(&RestServer::root_handler, this));
   // servicectrls
-  Routes::Post(router, base + std::string("/services"),
-               Routes::bind(&RestServer::post_servicectrl, this));
-  Routes::Get(router, base + std::string("/services"),
-              Routes::bind(&RestServer::get_servicectrls, this));
-  Routes::Get(router, base + std::string("/services/:name"),
-              Routes::bind(&RestServer::get_servicectrl, this));
-  Routes::Delete(router, base + std::string("/services/:name"),
-                 Routes::bind(&RestServer::delete_servicectrl, this));
+  router_->post(base + std::string("/services"),
+                bind(&RestServer::post_servicectrl, this));
+  router_->get(base + std::string("/services"),
+               bind(&RestServer::get_servicectrls, this));
+  router_->get(base + std::string("/services/:name"),
+               bind(&RestServer::get_servicectrl, this));
+  router_->del(base + std::string("/services/:name"),
+               bind(&RestServer::delete_servicectrl, this));
 
   // cubes
-  Routes::Get(router, base + std::string("/cubes"),
-              Routes::bind(&RestServer::get_cubes, this));
-  Routes::Get(router, base + std::string("/cubes/:cubeName"),
-              Routes::bind(&RestServer::get_cube, this));
+  router_->get(base + std::string("/cubes"),
+               bind(&RestServer::get_cubes, this));
+  router_->get(base + std::string("/cubes/:cubeName"),
+               bind(&RestServer::get_cube, this));
 
-  Routes::Options(router, base + std::string("/cubes"),
-                  Routes::bind(&RestServer::cubes_help, this));
+  router_->options(base + std::string("/cubes"),
+                   bind(&RestServer::cubes_help, this));
 
-  Routes::Options(router, base + std::string("/cubes/:cubeName"),
-                  Routes::bind(&RestServer::cube_help, this));
+  router_->options(base + std::string("/cubes/:cubeName"),
+                   bind(&RestServer::cube_help, this));
 
   // netdevs
-  Routes::Get(router, base + std::string("/netdevs"),
-              Routes::bind(&RestServer::get_netdevs, this));
-  Routes::Get(router, base + std::string("/netdevs/:name"),
-              Routes::bind(&RestServer::get_netdev, this));
+  router_->get(base + std::string("/netdevs"),
+               bind(&RestServer::get_netdevs, this));
+  router_->get(base + std::string("/netdevs/:name"),
+               bind(&RestServer::get_netdev, this));
 
-  Routes::Options(router, base + std::string("/netdevs"),
-                  Routes::bind(&RestServer::netdevs_help, this));
+  router_->options(base + std::string("/netdevs"),
+                   bind(&RestServer::netdevs_help, this));
 
-  Routes::Options(router, base + std::string("/netdevs/:netdevName"),
-                  Routes::bind(&RestServer::netdev_help, this));
+  router_->options(base + std::string("/netdevs/:netdevName"),
+                   bind(&RestServer::netdev_help, this));
 
   // version
-  Routes::Get(router, base + std::string("/version"),
-              Routes::bind(&RestServer::get_version, this));
+  router_->get(base + std::string("/version"),
+               bind(&RestServer::get_version, this));
 
   // connect & disconnect
-  Routes::Post(router, base + std::string("/connect"),
-               Routes::bind(&RestServer::connect, this));
-  Routes::Post(router, base + std::string("/disconnect"),
-               Routes::bind(&RestServer::disconnect, this));
+  router_->post(base + std::string("/connect"),
+                bind(&RestServer::connect, this));
+  router_->post(base + std::string("/disconnect"),
+                bind(&RestServer::disconnect, this));
 
   // topology
-  Routes::Get(router, base + std::string("/topology"),
-              Routes::bind(&RestServer::topology, this));
+  router_->get(base + std::string("/topology"),
+               bind(&RestServer::topology, this));
 
-  Routes::Options(router, base + std::string("/topology"),
-                  Routes::bind(&RestServer::topology_help, this));
+  router_->options(base + std::string("/topology"),
+                   bind(&RestServer::topology_help, this));
 }
 
-void RestServer::logRequest(const Rest::Request &request) {
-// logger->debug("{0} : {1}", request.method(), request.resource());
+void RestServer::logRequest(const Pistache::Rest::Request &request) {
+  // logger->debug("{0} : {1}", request.method(), request.resource());
 #ifdef LOG_DEBUG_REQUEST_
   logger->debug(request.method() + ": " + request.resource());
   logger->debug(request.body());
@@ -209,19 +217,18 @@ void RestServer::logRequest(const Rest::Request &request) {
 
 void RestServer::logJson(json j) {
 #ifdef LOG_DEBUG_JSON_
-  logger->debug("JSON Dump: ");
-  << std::endl;
-  logger->debug(j.dump(4));
+  logger->debug("JSON Dump: \n");
+  logger->debug(j.dump());
 #endif
 }
 
-void RestServer::root_handler(const Rest::Request &request,
-                              Http::ResponseWriter response) {
+void RestServer::root_handler(const Pistache::Rest::Request &request,
+                              Pistache::Http::ResponseWriter response) {
   HelpType help_type;
   auto help = request.query().get("help").getOrElse("NO_HELP");
-  if (help.compare("NO_HELP") == 0)
+  if (help == "NO_HELP") {
     help_type = HelpType::NO_HELP;
-  else if (help.compare("NONE") == 0)
+  } else if (help == "NONE") {
     help_type = HelpType::NONE;
   else {
     response.send(Http::Code::Bad_Request);
@@ -243,12 +250,12 @@ void RestServer::root_handler(const Rest::Request &request,
           it->get_swagger_codegen_git_repo_id();
     }
 
-    response.send(Http::Code::Ok, j.dump(4));
+    response.send(Pistache::Http::Code::Ok, j.dump());
   }
 }
 
-void RestServer::post_servicectrl(const Rest::Request &request,
-                                  Http::ResponseWriter response) {
+void RestServer::post_servicectrl(const Pistache::Rest::Request &request,
+                                  Pistache::Http::ResponseWriter response) {
   logRequest(request);
 
   try {
@@ -261,37 +268,37 @@ void RestServer::post_servicectrl(const Rest::Request &request,
     response.send(Http::Code::Ok);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::get_servicectrls(const Rest::Request &request,
-                                  Http::ResponseWriter response) {
+void RestServer::get_servicectrls(const Pistache::Rest::Request &request,
+                                  Pistache::Http::ResponseWriter response) {
   logRequest(request);
   try {
     std::string retJsonStr = core.get_servicectrls();
-    response.send(Http::Code::Ok, retJsonStr);
+    response.send(Pistache::Http::Code::Ok, retJsonStr);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::get_servicectrl(const Rest::Request &request,
-                                 Http::ResponseWriter response) {
+void RestServer::get_servicectrl(const Pistache::Rest::Request &request,
+                                 Pistache::Http::ResponseWriter response) {
   logRequest(request);
   try {
     auto name = request.param(":name").as<std::string>();
     std::string retJsonStr = core.get_servicectrl(name);
-    response.send(Http::Code::Ok, retJsonStr);
+    response.send(Pistache::Http::Code::Ok, retJsonStr);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::delete_servicectrl(const Rest::Request &request,
-                                    Http::ResponseWriter response) {
+void RestServer::delete_servicectrl(const Pistache::Rest::Request &request,
+                                    Pistache::Http::ResponseWriter response) {
   logRequest(request);
   try {
     auto name = request.param(":name").as<std::string>();
@@ -299,41 +306,41 @@ void RestServer::delete_servicectrl(const Rest::Request &request,
     response.send(Http::Code::Ok);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::get_cubes(const Rest::Request &request,
-                           Http::ResponseWriter response) {
+void RestServer::get_cubes(const Pistache::Rest::Request &request,
+                           Pistache::Http::ResponseWriter response) {
   logRequest(request);
   try {
     std::string retJsonStr = core.get_cubes();
-    response.send(Http::Code::Ok, retJsonStr);
+    response.send(Pistache::Http::Code::Ok, retJsonStr);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::get_cube(const Rest::Request &request,
-                          Http::ResponseWriter response) {
+void RestServer::get_cube(const Pistache::Rest::Request &request,
+                          Pistache::Http::ResponseWriter response) {
   logRequest(request);
   try {
     auto name = request.param(":cubeName").as<std::string>();
     std::string retJsonStr = core.get_cube(name);
-    response.send(Http::Code::Ok, retJsonStr);
+    response.send(Pistache::Http::Code::Ok, retJsonStr);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::cubes_help(const Rest::Request &request,
-                            Http::ResponseWriter response) {
+void RestServer::cubes_help(const Pistache::Rest::Request &request,
+                            Pistache::Http::ResponseWriter response) {
   json j = json::object();
   auto help = request.query().get("help").getOrElse("NO_HELP");
   if (help != "NONE" && help != "SHOW") {
-    response.send(Http::Code::Bad_Request);
+    response.send(Pistache::Http::Code::Bad_Request);
     return;
   }
 
@@ -360,54 +367,54 @@ void RestServer::cubes_help(const Rest::Request &request,
     j["commands"] = {"show"};
   }
 
-  response.send(Http::Code::Ok, j.dump(4));
+  response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
-void RestServer::cube_help(const Rest::Request &request,
-                           Http::ResponseWriter response) {
+void RestServer::cube_help(const Pistache::Rest::Request &request,
+                           Pistache::Http::ResponseWriter response) {
   json j = json::object();
   auto help = request.query().get("help").getOrElse("NO_HELP");
   if (help != "NONE") {
-    response.send(Http::Code::Bad_Request);
+    response.send(Pistache::Http::Code::Bad_Request);
     return;
   }
 
   j["commands"] = {"show"};
 
-  response.send(Http::Code::Ok, j.dump(4));
+  response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
-void RestServer::get_netdevs(const Rest::Request &request,
-                             Http::ResponseWriter response) {
+void RestServer::get_netdevs(const Pistache::Rest::Request &request,
+                             Pistache::Http::ResponseWriter response) {
   logRequest(request);
   try {
     std::string retJsonStr = core.get_netdevs();
-    response.send(Http::Code::Ok, retJsonStr);
+    response.send(Pistache::Http::Code::Ok, retJsonStr);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::get_netdev(const Rest::Request &request,
-                            Http::ResponseWriter response) {
+void RestServer::get_netdev(const Pistache::Rest::Request &request,
+                            Pistache::Http::ResponseWriter response) {
   logRequest(request);
   try {
     auto name = request.param(":name").as<std::string>();
     std::string retJsonStr = core.get_netdev(name);
-    response.send(Http::Code::Ok, retJsonStr);
+    response.send(Pistache::Http::Code::Ok, retJsonStr);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::netdevs_help(const Rest::Request &request,
-                              Http::ResponseWriter response) {
+void RestServer::netdevs_help(const Pistache::Rest::Request &request,
+                              Pistache::Http::ResponseWriter response) {
   json j = json::object();
   auto help = request.query().get("help").getOrElse("NO_HELP");
   if (help != "NONE" && help != "SHOW") {
-    response.send(Http::Code::Bad_Request);
+    response.send(Pistache::Http::Code::Bad_Request);
     return;
   }
 
@@ -434,60 +441,60 @@ void RestServer::netdevs_help(const Rest::Request &request,
     j["commands"] = {"show"};
   }
 
-  response.send(Http::Code::Ok, j.dump(4));
+  response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
-void RestServer::netdev_help(const Rest::Request &request,
-                             Http::ResponseWriter response) {
+void RestServer::netdev_help(const Pistache::Rest::Request &request,
+                             Pistache::Http::ResponseWriter response) {
   json j = json::object();
   auto help = request.query().get("help").getOrElse("NO_HELP");
   if (help != "NONE") {
-    response.send(Http::Code::Bad_Request);
+    response.send(Pistache::Http::Code::Bad_Request);
     return;
   }
 
   j["commands"] = {"show"};
 
-  response.send(Http::Code::Ok, j.dump(4));
+  response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
-void RestServer::get_version(const Rest::Request &request,
-                             Http::ResponseWriter response) {
+void RestServer::get_version(const Pistache::Rest::Request &request,
+                             Pistache::Http::ResponseWriter response) {
   json version = json::object();
   version["polycubed"]["version"] = VERSION;
-  response.send(Http::Code::Ok, version.dump(4));
+  response.send(Pistache::Http::Code::Ok, version.dump());
 }
 
-void RestServer::connect(const Rest::Request &request,
-                         Http::ResponseWriter response) {
+void RestServer::connect(const Pistache::Rest::Request &request,
+                         Pistache::Http::ResponseWriter response) {
   logRequest(request);
   std::string peer1, peer2;
 
   nlohmann::json val = nlohmann::json::parse(request.body());
 
   if (val.find("peer1") == val.end()) {
-    response.send(Http::Code::Bad_Request, "Peer 1 is missing");
+    response.send(Pistache::Http::Code::Bad_Request, "Peer 1 is missing");
   }
 
   peer1 = val.at("peer1");
 
   if (val.find("peer2") == val.end()) {
-    response.send(Http::Code::Bad_Request, "Peer 2 is missing");
+    response.send(Pistache::Http::Code::Bad_Request, "Peer 2 is missing");
   }
 
   peer2 = val.at("peer2");
 
   try {
     core.connect(peer1, peer2);
-    response.send(Http::Code::Ok);
+    response.send(Pistache::Http::Code::Ok);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::disconnect(const Rest::Request &request,
-                            Http::ResponseWriter response) {
+void RestServer::disconnect(const Pistache::Rest::Request &request,
+                            Pistache::Http::ResponseWriter response) {
   logRequest(request);
 
   std::string peer1, peer2;
@@ -495,50 +502,50 @@ void RestServer::disconnect(const Rest::Request &request,
   nlohmann::json val = nlohmann::json::parse(request.body());
 
   if (val.find("peer1") == val.end()) {
-    response.send(Http::Code::Bad_Request, "Peer 1 is missing");
+    response.send(Pistache::Http::Code::Bad_Request, "Peer 1 is missing");
   }
 
   peer1 = val.at("peer1");
 
   if (val.find("peer2") == val.end()) {
-    response.send(Http::Code::Bad_Request, "Peer 2 is missing");
+    response.send(Pistache::Http::Code::Bad_Request, "Peer 2 is missing");
   }
 
   peer2 = val.at("peer2");
 
   try {
     core.disconnect(peer1, peer2);
-    response.send(Http::Code::Ok);
+    response.send(Pistache::Http::Code::Ok);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::topology(const Rest::Request &request,
-                          Http::ResponseWriter response) {
+void RestServer::topology(const Pistache::Rest::Request &request,
+                          Pistache::Http::ResponseWriter response) {
   logRequest(request);
   try {
     std::string retJsonStr = core.topology();
-    response.send(Http::Code::Ok, retJsonStr);
+    response.send(Pistache::Http::Code::Ok, retJsonStr);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
-    response.send(Http::Code::Bad_Request, e.what());
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
   }
 }
 
-void RestServer::topology_help(const Rest::Request &request,
-                               Http::ResponseWriter response) {
+void RestServer::topology_help(const Pistache::Rest::Request &request,
+                               Pistache::Http::ResponseWriter response) {
   json j = json::object();
   auto help = request.query().get("help").getOrElse("NO_HELP");
   if (help != "NONE") {
-    response.send(Http::Code::Bad_Request);
+    response.send(Pistache::Http::Code::Bad_Request);
     return;
   }
 
   j["commands"] = {"show"};
 
-  response.send(Http::Code::Ok, j.dump(4));
+  response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
 }  // namespace polycubed
