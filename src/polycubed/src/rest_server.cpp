@@ -22,10 +22,12 @@
 #include "service_controller.h"
 #include "version.h"
 
+#include "polycube/services/response.h"
+#include "server/Resources/Data/AbstractFactory.h"
+#include "server/Server/ResponseGenerator.h"
+
 namespace polycube {
 namespace polycubed {
-
-using polycube::service::HelpType;
 
 std::shared_ptr<Pistache::Rest::Router> RestServer::router_;
 std::string RestServer::whitelist_cert_path;
@@ -230,8 +232,10 @@ void RestServer::root_handler(const Pistache::Rest::Request &request,
     help_type = HelpType::NO_HELP;
   } else if (help == "NONE") {
     help_type = HelpType::NONE;
-  else {
-    response.send(Http::Code::Bad_Request);
+  } else {
+    Rest::Server::ResponseGenerator::Generate(
+        std::vector<Response>{{ErrorTag::kInvalidValue, nullptr}},
+        std::move(response));
     return;
   }
 
@@ -261,11 +265,45 @@ void RestServer::post_servicectrl(const Pistache::Rest::Request &request,
   try {
     json j = json::parse(request.body());
     logJson(j);
-    auto name = j["name"].get<std::string>();
-    auto servicecontroller = j["servicecontroller"].get<std::string>();
 
-    core.add_servicectrl(name, servicecontroller);
-    response.send(Http::Code::Ok);
+    if (j.count("type") == 0) {
+      Rest::Server::ResponseGenerator::Generate(
+          std::vector<Response>{{ErrorTag::kMissingAttribute, strdup("type")}},
+          std::move(response));
+      return;
+    }
+    if (j.count("uri") == 0) {
+      Rest::Server::ResponseGenerator::Generate(
+          std::vector<Response>{{ErrorTag::kMissingAttribute, strdup("uri")}},
+          std::move(response));
+      return;
+    }
+    if (j.count("name") == 0) {
+      Rest::Server::ResponseGenerator::Generate(
+          std::vector<Response>{{ErrorTag::kMissingAttribute, strdup("name")}},
+          std::move(response));
+      return;
+    }
+
+    // parse type && URI (servicecontroller)
+    auto jtype = j["type"].get<std::string>();
+    auto uri = j["uri"].get<std::string>();
+    auto name = j["name"].get<std::string>();
+
+    ServiceControllerType type;
+    if (jtype == "lib") {
+      type = ServiceControllerType::LIBRARY;
+    } else if (jtype == "grpc") {
+      type = ServiceControllerType::DAEMON;
+    } else {
+      Rest::Server::ResponseGenerator::Generate(
+          std::vector<Response>{{ErrorTag::kBadAttribute, strdup("type")}},
+          std::move(response));
+      return;
+    }
+
+    core.add_servicectrl(name, type, base, uri);
+    response.send(Pistache::Http::Code::Ok);
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
     response.send(Pistache::Http::Code::Bad_Request, e.what());
@@ -303,7 +341,11 @@ void RestServer::delete_servicectrl(const Pistache::Rest::Request &request,
   try {
     auto name = request.param(":name").as<std::string>();
     core.delete_servicectrl(name);
-    response.send(Http::Code::Ok);
+    response.send(Pistache::Http::Code::No_Content);
+  } catch (const std::invalid_argument &e) {
+    Rest::Server::ResponseGenerator::Generate(
+        std::vector<Response>{{ErrorTag::kDataMissing, nullptr}},
+        std::move(response));
   } catch (const std::runtime_error &e) {
     logger->error("{0}", e.what());
     response.send(Pistache::Http::Code::Bad_Request, e.what());
