@@ -29,8 +29,7 @@ RulesJsonObject::RulesJsonObject() :
   m_dstMacIsSet (false),
   m_srcIpIsSet (false),
   m_dstIpIsSet (false),
-  m_l4Proto (RulesL4ProtoEnum::TCP),
-  m_l4ProtoIsSet (true),
+  m_l4ProtoIsSet (false),
   m_srcPortIsSet (false),
   m_dstPortIsSet (false),
   m_inPortIsSet (false),
@@ -45,9 +44,7 @@ RulesJsonObject::RulesJsonObject(nlohmann::json& val) :
   m_dstMacIsSet (false),
   m_srcIpIsSet (false),
   m_dstIpIsSet (false),
-  // Item with a default value, granted to be part of the request body
-  m_l4Proto (string_to_RulesL4ProtoEnum(val.at("l4_proto").get<std::string>())),
-  m_l4ProtoIsSet (true),
+  m_l4ProtoIsSet (false),
   m_srcPortIsSet (false),
   m_dstPortIsSet (false),
   m_inPortIsSet (false),
@@ -76,6 +73,9 @@ RulesJsonObject::RulesJsonObject(nlohmann::json& val) :
     setDstIp(val.at("dst_ip").get<std::string>());
   }
 
+  if (val.count("l4_proto") != 0) {
+    setL4Proto(string_to_RulesL4ProtoEnum(val.at("l4_proto").get<std::string>()));
+  }
 
   if (val.count("src_port") != 0) {
     setSrcPort(val.at("src_port").get<uint16_t>());
@@ -190,7 +190,7 @@ nlohmann::json RulesJsonObject::helpElements() {
   val["l4_proto"]["name"] = "l4_proto";
   val["l4_proto"]["type"] = "leaf"; // Suppose that type is leaf
   val["l4_proto"]["simpletype"] = "string";
-  val["l4_proto"]["description"] = R"POLYCUBE(Level 4 Protocol (i.e. UDP, TCP; default: TCP))POLYCUBE";
+  val["l4_proto"]["description"] = R"POLYCUBE(Level 4 Protocol (i.e. UDP, TCP))POLYCUBE";
   val["l4_proto"]["example"] = R"POLYCUBE()POLYCUBE";
   val["src_port"]["name"] = "src_port";
   val["src_port"]["type"] = "leaf"; // Suppose that type is leaf
@@ -246,7 +246,7 @@ nlohmann::json RulesJsonObject::helpWritableLeafs() {
   val["dst_ip"]["example"] = R"POLYCUBE()POLYCUBE";
   val["l4_proto"]["name"] = "l4_proto";
   val["l4_proto"]["simpletype"] = "string";
-  val["l4_proto"]["description"] = R"POLYCUBE(Level 4 Protocol (i.e. UDP, TCP; default: TCP))POLYCUBE";
+  val["l4_proto"]["description"] = R"POLYCUBE(Level 4 Protocol (i.e. UDP, TCP))POLYCUBE";
   val["l4_proto"]["example"] = R"POLYCUBE()POLYCUBE";
   val["src_port"]["name"] = "src_port";
   val["src_port"]["simpletype"] = "integer";

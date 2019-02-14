@@ -952,7 +952,7 @@ update_pbforwarder_rules_in_port_by_id(const std::string &name, const uint32_t &
 *
 * @param[in] name ID of name
 * @param[in] id ID of id
-* @param[in] value Level 4 Protocol (i.e. UDP, TCP; default: TCP)
+* @param[in] value Level 4 Protocol (i.e. UDP, TCP)
 *
 * Responses:
 *

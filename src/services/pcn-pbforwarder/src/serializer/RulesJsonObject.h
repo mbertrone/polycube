@@ -107,7 +107,7 @@ public:
   void unsetDstIp();
 
   /// <summary>
-  /// Level 4 Protocol (i.e. UDP, TCP; default: TCP)
+  /// Level 4 Protocol (i.e. UDP, TCP)
   /// </summary>
   RulesL4ProtoEnum getL4Proto() const;
   void setL4Proto(RulesL4ProtoEnum value);
