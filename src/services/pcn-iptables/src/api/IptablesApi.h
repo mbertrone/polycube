@@ -82,6 +82,7 @@ Response read_iptables_chain_rule_src_by_id_handler(const char *name, const Key 
 Response read_iptables_chain_rule_tcpflags_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_iptables_chain_stats_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_iptables_chain_stats_bytes_by_id_handler(const char *name, const Key *keys, size_t num_keys);
+Response read_iptables_chain_stats_description_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_iptables_chain_stats_list_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_iptables_chain_stats_pkts_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_iptables_conntrack_by_id_handler(const char *name, const Key *keys, size_t num_keys);

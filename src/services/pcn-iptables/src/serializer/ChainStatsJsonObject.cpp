@@ -25,19 +25,25 @@ namespace model {
 ChainStatsJsonObject::ChainStatsJsonObject() :
   m_idIsSet (false),
   m_pktsIsSet (false),
-  m_bytesIsSet (false) { }
+  m_bytesIsSet (false),
+  m_descriptionIsSet (false) { }
 
 ChainStatsJsonObject::ChainStatsJsonObject(nlohmann::json& val) :
   m_idIsSet (false),
   m_pktsIsSet (false),
-  m_bytesIsSet (false) {
+  m_bytesIsSet (false),
+  m_descriptionIsSet (false) {
 
   if (val.count("pkts") != 0) {
     setPkts(val.at("pkts").get<uint64_t>());
   }
 
   if (val.count("bytes") != 0) {
-    setBytes(val.at("bytes").get<uint64_t>());
+    setBytes(val.at("bytes"));
+  }
+
+  if (val.count("description") != 0) {
+    setDescription(val.at("description"));
   }
 }
 
@@ -51,6 +57,10 @@ nlohmann::json ChainStatsJsonObject::toJson() const {
 
   if (m_bytesIsSet) {
     val["bytes"] = m_bytes;
+  }
+
+  if (m_descriptionIsSet) {
+    val["description"] = m_description;
   }
 
 
@@ -82,6 +92,11 @@ nlohmann::json ChainStatsJsonObject::helpElements() {
   val["bytes"]["simpletype"] = "integer";
   val["bytes"]["description"] = R"POLYCUBE(Number of bytes matching the rule)POLYCUBE";
   val["bytes"]["example"] = R"POLYCUBE()POLYCUBE";
+  val["description"]["name"] = "description";
+  val["description"]["type"] = "leaf"; // Suppose that type is leaf
+  val["description"]["simpletype"] = "string";
+  val["description"]["description"] = R"POLYCUBE(Description)POLYCUBE";
+  val["description"]["example"] = R"POLYCUBE()POLYCUBE";
 
   return val;
 }
@@ -160,10 +175,28 @@ void ChainStatsJsonObject::unsetBytes() {
 
 
 
+std::string ChainStatsJsonObject::getDescription() const {
+  return m_description;
+}
+
+void ChainStatsJsonObject::setDescription(std::string value) {
+  m_description = value;
+  m_descriptionIsSet = true;
+}
+
+bool ChainStatsJsonObject::descriptionIsSet() const {
+  return m_descriptionIsSet;
+}
+
+void ChainStatsJsonObject::unsetDescription() {
+  m_descriptionIsSet = false;
+}
+
+
+
 
 }
 }
 }
 }
-
 

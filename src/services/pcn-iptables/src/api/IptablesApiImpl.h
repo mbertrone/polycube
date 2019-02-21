@@ -88,6 +88,7 @@ namespace IptablesApiImpl {
   std::string read_iptables_chain_rule_tcpflags_by_id(const std::string &name, const ChainNameEnum &chainName, const uint32_t &id);
   ChainStatsJsonObject read_iptables_chain_stats_by_id(const std::string &name, const ChainNameEnum &chainName, const uint32_t &id);
   uint64_t read_iptables_chain_stats_bytes_by_id(const std::string &name, const ChainNameEnum &chainName, const uint32_t &id);
+  std::string read_iptables_chain_stats_description_by_id(const std::string &name, const ChainNameEnum &chainName, const uint32_t &id);
   std::vector<ChainStatsJsonObject> read_iptables_chain_stats_list_by_id(const std::string &name, const ChainNameEnum &chainName);
   std::vector<nlohmann::fifo_map<std::string, std::string>> read_iptables_chain_stats_list_by_id_get_list(const std::string &name, const ChainNameEnum &chainName);
   uint64_t read_iptables_chain_stats_pkts_by_id(const std::string &name, const ChainNameEnum &chainName, const uint32_t &id);

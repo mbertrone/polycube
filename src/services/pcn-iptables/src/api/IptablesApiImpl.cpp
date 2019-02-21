@@ -969,6 +969,30 @@ read_iptables_chain_stats_bytes_by_id(const std::string &name, const ChainNameEn
 
 
 /**
+* @brief   Read description by ID
+*
+* Read operation of resource: description*
+*
+* @param[in] name ID of name
+* @param[in] chainName ID of chain_name
+* @param[in] id ID of id
+*
+* Responses:
+* std::string
+*/
+std::string
+read_iptables_chain_stats_description_by_id(const std::string &name, const ChainNameEnum &chainName, const uint32_t &id) {
+  auto iptables = get_cube(name);
+  auto chain = iptables->getChain(chainName);
+  auto stats = chain->getStats(id);
+  return stats->getDescription();
+
+}
+
+
+
+
+/**
 * @brief   Read stats by ID
 *
 * Read operation of resource: stats*

@@ -1059,6 +1059,40 @@ Response read_iptables_chain_stats_bytes_by_id_handler(
   }
 }
 
+Response read_iptables_chain_stats_description_by_id_handler(
+  const char *name, const Key *keys,
+  size_t num_keys ) {
+  // Getting the path params
+  std::string unique_name { name };
+  std::string unique_chainName;
+  for (size_t i = 0; i < num_keys; ++i) {
+    if (!strcmp(keys[i].name, "chain_name")) {
+      unique_chainName = std::string { keys[i].value.string };
+      break;
+    }
+  }
+  auto unique_chainName_ = ChainJsonObject::string_to_ChainNameEnum(unique_chainName);
+
+  uint32_t unique_id;
+  for (size_t i = 0; i < num_keys; ++i) {
+    if (!strcmp(keys[i].name, "id")) {
+      unique_id = keys[i].value.uint32;
+      break;
+    }
+  }
+
+
+  try {
+
+    auto x = read_iptables_chain_stats_description_by_id(unique_name, unique_chainName_, unique_id);
+    nlohmann::json response_body;
+    response_body = x;
+    return { kOk, ::strdup(response_body.dump().c_str()) };
+  } catch(const std::exception &e) {
+    return { kGenericError, ::strdup(e.what()) };
+  }
+}
+
 Response read_iptables_chain_stats_list_by_id_handler(
   const char *name, const Key *keys,
   size_t num_keys ) {

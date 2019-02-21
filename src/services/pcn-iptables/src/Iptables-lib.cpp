@@ -216,6 +216,12 @@ module iptables {
         description "Number of bytes matching the rule";
         config false;
       }
+
+      leaf description {
+        type string;
+        description "Description";
+        config false;
+      }
     }
 
     list rule {

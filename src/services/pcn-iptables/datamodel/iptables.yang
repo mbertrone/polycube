@@ -101,7 +101,7 @@ module iptables {
     }
     description "Enables the Connection Tracking module. Mandatory if connection tracking rules are needed. Default is ON.";
   }
-  
+
   leaf horus {
     type enumeration {
       enum ON;
@@ -191,6 +191,12 @@ module iptables {
       leaf bytes {
         type uint64;
         description "Number of bytes matching the rule";
+        config false;
+      }
+
+      leaf description {
+        type string;
+        description "Description";
         config false;
       }
     }

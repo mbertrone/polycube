@@ -76,6 +76,14 @@ public:
   bool bytesIsSet() const;
   void unsetBytes();
 
+  /// <summary>
+  /// Description
+  /// </summary>
+  std::string getDescription() const;
+  void setDescription(std::string value);
+  bool descriptionIsSet() const;
+  void unsetDescription();
+
 
 private:
   uint32_t m_id;
@@ -84,6 +92,8 @@ private:
   bool m_pktsIsSet;
   uint64_t m_bytes;
   bool m_bytesIsSet;
+  std::string m_description;
+  bool m_descriptionIsSet;
 };
 
 }
