@@ -21,6 +21,9 @@ add_library(pcn-helloworld SHARED
 
 # load ebpf datapath code in std::string variables
 load_file_as_variable(pcn-helloworld Helloworld_dp_ingress.c helloworld_code_ingress)
+load_file_as_variable(pcn-helloworld Helloworld_dp_ingress2.c helloworld_code_ingress2)
+load_file_as_variable(pcn-helloworld Helloworld_dp_ingress10.c helloworld_code_ingress10)
+
 load_file_as_variable(pcn-helloworld Helloworld_dp_egress.c helloworld_code_egress)
 
 target_link_libraries(pcn-helloworld
