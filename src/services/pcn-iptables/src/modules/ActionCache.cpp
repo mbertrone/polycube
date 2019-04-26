@@ -75,7 +75,7 @@ void Iptables::ActionCache::garbageCollectorTimer() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    garbageCollector();
+//    garbageCollector();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
