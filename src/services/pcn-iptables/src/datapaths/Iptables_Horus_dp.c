@@ -34,6 +34,8 @@ struct packetHeaders {
     uint32_t sessionId;
     uint8_t direction;
 
+    uint32_t forwardingDecision;
+
     // conntrackCommit attributes
     uint8_t mask;
     uint8_t setMask;
@@ -83,7 +85,7 @@ BPF_TABLE("extern", int, struct packetHeaders, packet, 1);
 // TODO 1024 -> const
 BPF_TABLE("hash", struct horusKey, struct horusValue, horusTable, 1024);
 
-BPF_TABLE("extern", int, int, forwardingDecision, 1);
+//BPF_TABLE("extern", int, int, forwardingDecision, 1);
 
 // Per-CPU maps used to keep counter of HORUS rules
 BPF_TABLE("percpu_array", int, u64, pkts_horus, 1024);
@@ -100,11 +102,11 @@ static __always_inline void incrementHorusCounters(u32 ruleID, u32 bytes) {
     *value += bytes;
   }
 }
-
-static __always_inline void updateForwardingDecision(int decision) {
-  int key = 0;
-  forwardingDecision.update(&key, &decision);
-}
+//
+//static __always_inline void updateForwardingDecision(int decision) {
+//  int key = 0;
+//  forwardingDecision.update(&key, &decision);
+//}
 
 static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
   pcn_log(ctx, LOG_DEBUG, "HORUS receiving packet.");
@@ -166,7 +168,8 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
     if (value->action == 1) {
       // goto PASS
       pcn_log(ctx, LOG_DEBUG, "HORUS ACTION=ACCEPT. Tag with PASS_LABELING. ");
-      updateForwardingDecision(PASS_LABELING);
+//      updateForwardingDecision(PASS_LABELING);
+      pkt->forwardingDecision = PASS_LABELING;
       call_bpf_program(ctx, _CONNTRACK_LABEL_INGRESS);
     }
     goto PIPELINE;

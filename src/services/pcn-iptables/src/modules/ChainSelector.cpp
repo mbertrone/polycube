@@ -62,7 +62,7 @@ std::string Iptables::ChainSelector::defaultActionString(
       std::string ret =
           "pcn_log(ctx, LOG_TRACE, \"[_HOOK] [ChainSelector] PASS_LABELING\"); "
           "\n "
-          "updateForwardingDecision(PASS_LABELING);";
+          "pkt->forwardingDecision = PASS_LABELING;";
       return ret;
     }
   } catch (...) {

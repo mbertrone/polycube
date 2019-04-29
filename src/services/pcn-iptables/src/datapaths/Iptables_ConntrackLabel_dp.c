@@ -153,7 +153,9 @@ struct packetHeaders {
   uint32_t sessionId;
   uint8_t direction;
 
-  // conntrackCommit attributes
+  uint32_t forwardingDecision;
+
+    // conntrackCommit attributes
   uint8_t mask;
   uint8_t setMask;
   uint8_t clearMask;
@@ -188,7 +190,7 @@ struct session_v {
 /* BPF MAPS DECLARATION */
 
 BPF_TABLE("extern", int, struct packetHeaders, packet, 1);
-BPF_TABLE("extern", int, int, forwardingDecision, 1);
+//BPF_TABLE("extern", int, int, forwardingDecision, 1);
 BPF_TABLE("extern", uint32_t, struct session_v, session, SESSION_DIM);
 
 #if _INGRESS_LOGIC
@@ -214,10 +216,10 @@ BPF_TABLE_SHARED("percpu_array", int, u64, bytes_acceptestablished_Output, 1);
 
 /* INLINE FUNCTIONS */
 
-static __always_inline int *getForwardingDecision() {
-  int key = 0;
-  return forwardingDecision.lookup(&key);
-}
+//static __always_inline int *getForwardingDecision() {
+//  int key = 0;
+//  return forwardingDecision.lookup(&key);
+//}
 
 static __always_inline uint64_t *time_get_ns() {
   int key = 0;
@@ -974,16 +976,16 @@ action:;
           "pkt->connStatus: %d ",
           pkt->mask, pkt->connStatus);
 
-  // TODO possible optimization, inject it if needed
-  int *decision = getForwardingDecision();
-
-  if (decision == NULL) {
-    return RX_DROP;
-  }
+//  // TODO possible optimization, inject it if needed
+//  int *decision = getForwardingDecision();
+//
+//  if (decision == NULL) {
+//    return RX_DROP;
+//  }
 
 #if _INGRESS_LOGIC
 
-  switch (*decision) {
+  switch (pkt->forwardingDecision) {
   case INPUT_LABELING:
     pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ConntrackLabel] INPUT_LABELING ");
 
@@ -1029,7 +1031,7 @@ action:;
 
 #if _EGRESS_LOGIC
 
-  switch (*decision) {
+  switch (pkt->forwardingDecision) {
   case OUTPUT_LABELING:
     pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ConntrackLabel] OUTPUT_LABELING ");
 

@@ -18,6 +18,31 @@
      Chain Forarder
    ======================= */
 
+// packet metadata
+struct packetHeaders {
+    uint32_t srcIp;
+    uint32_t dstIp;
+    uint8_t l4proto;
+    uint16_t srcPort;
+    uint16_t dstPort;
+    uint8_t flags;
+    uint32_t seqN;
+    uint32_t ackN;
+    uint8_t connStatus;
+    uint32_t sessionId;
+    uint8_t direction;
+
+    uint32_t forwardingDecision;
+
+    // conntrackCommit attributes
+    uint8_t mask;
+    uint8_t setMask;
+    uint8_t clearMask;
+    uint8_t state;
+    uint32_t sequence;
+    uint64_t ttl;
+} __attribute__((packed));
+
 enum {
   INPUT_LABELING,    // goto input chain and label packet
   FORWARD_LABELING,  // goto forward chain and label packet
@@ -32,25 +57,33 @@ enum {
 
 // This is the percpu array containing the forwarding decision. ChainForwarder
 // just lookup this value.
-BPF_TABLE("extern", int, int, forwardingDecision, 1);
+//BPF_TABLE("extern", int, int, forwardingDecision, 1);
+//
+//static __always_inline int *getForwardingDecision() {
+//  int key = 0;
+//  return forwardingDecision.lookup(&key);
+//}
 
-static __always_inline int *getForwardingDecision() {
-  int key = 0;
-  return forwardingDecision.lookup(&key);
-}
+BPF_TABLE("extern", int, struct packetHeaders, packet, 1);
 
 static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
   pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ChainForwarder] receiving packet.");
 
-  int *decision = getForwardingDecision();
+//  int *decision = getForwardingDecision();
+//
+//  if (decision == NULL) {
+//    return RX_DROP;
+//  }
 
-  if (decision == NULL) {
+  int k = 0;
+  struct packetHeaders *pkt = packet.lookup(&k);
+  if (pkt == NULL) {
     return RX_DROP;
   }
 
 #if _INGRESS_LOGIC
 
-  switch (*decision) {
+  switch (pkt->forwardingDecision) {
   case INPUT_LABELING:
     pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ChainForwarder] Call INPUT Chain %d ",
             _NEXT_HOP_INPUT_1);
@@ -79,7 +112,7 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
 
 #if _EGRESS_LOGIC
 
-  switch (*decision) {
+  switch (pkt->forwardingDecision) {
   case OUTPUT_LABELING:
     pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ChainForwarder] Call OUTPUT Chain %d ",
             _NEXT_HOP_OUTPUT_1);

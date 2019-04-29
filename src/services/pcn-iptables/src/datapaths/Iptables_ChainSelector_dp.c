@@ -36,6 +36,8 @@ struct packetHeaders {
     uint32_t sessionId;
     uint8_t direction;
 
+    uint32_t forwardingDecision;
+
     // conntrackCommit attributes
     uint8_t mask;
     uint8_t setMask;
@@ -78,15 +80,15 @@ BPF_TABLE("extern", int, u64, pkts_default_Output, 1);
 BPF_TABLE("extern", int, u64, bytes_default_Output, 1);
 #endif
 
-// This is the percpu array containing the forwarding decision. ChainForwarder
-// just lookup this value.
-#if _INGRESS_LOGIC
-BPF_TABLE_SHARED("percpu_array", int, int, forwardingDecision, 1);
-#endif
-
-#if _EGRESS_LOGIC
-BPF_TABLE("extern", int, int, forwardingDecision, 1);
-#endif
+//// This is the percpu array containing the forwarding decision. ChainForwarder
+//// just lookup this value.
+//#if _INGRESS_LOGIC
+//BPF_TABLE_SHARED("percpu_array", int, int, forwardingDecision, 1);
+//#endif
+//
+//#if _EGRESS_LOGIC
+//BPF_TABLE("extern", int, int, forwardingDecision, 1);
+//#endif
 
 #if _INGRESS_LOGIC
 static __always_inline void incrementDefaultCountersInput(u32 bytes) {
@@ -134,24 +136,13 @@ static __always_inline void incrementDefaultCountersOutput(u32 bytes) {
 }
 #endif
 
-static __always_inline void updateForwardingDecision(int decision) {
-  int key = 0;
-  forwardingDecision.update(&key, &decision);
-}
+//static __always_inline void updateForwardingDecision(int decision) {
+//  int key = 0;
+//  forwardingDecision.update(&key, &decision);
+//}
 
 static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
   pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ChainSelector] receiving packet.");
-
-// No rules in INPUT and FORWARD chain, and default action is accept
-// let all the traffic to be labeled and pass.
-#if _INGRESS_ALLOWLOGIC
-  pcn_log(ctx, LOG_DEBUG,
-          "[_HOOK] [ChainSelector] INGRESS LOGIC PASS. No rules for INPUT and "
-          "FORWARD, and default is "
-          "ACCEPT. ");
-  updateForwardingDecision(PASS_LABELING);
-  call_bpf_program(ctx, _ACTIONCACHE_INGRESS);
-#endif
 
   int key = 0;
   struct elements *result;
@@ -163,6 +154,17 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
     // Not possible
     return RX_DROP;
   }
+
+// No rules in INPUT and FORWARD chain, and default action is accept
+// let all the traffic to be labeled and pass.
+#if _INGRESS_ALLOWLOGIC
+  pcn_log(ctx, LOG_DEBUG,
+          "[_HOOK] [ChainSelector] INGRESS LOGIC PASS. No rules for INPUT and "
+          "FORWARD, and default is "
+          "ACCEPT. ");
+  pkt->forwardingDecision = PASS_LABELING;
+  call_bpf_program(ctx, _ACTIONCACHE_INGRESS);
+#endif
 
 #if _INGRESS_LOGIC
 
@@ -199,7 +201,7 @@ INPUT:;
 #endif
 #if _NR_ELEMENTS_INPUT > 0
   // update map with INPUT_LABELING
-  updateForwardingDecision(INPUT_LABELING);
+  pkt->forwardingDecision = INPUT_LABELING;
 
   // call chain label INGRESS
   call_bpf_program(ctx, _ACTIONCACHE_INGRESS);
@@ -234,7 +236,7 @@ FORWARD:;
 #endif
 #if _NR_ELEMENTS_FORWARD > 0
   // update map with FORWARD_LABELING
-  updateForwardingDecision(FORWARD_LABELING);
+  pkt->forwardingDecision = FORWARD_LABELING;
 
   // call chain label INGRESS
   call_bpf_program(ctx, _ACTIONCACHE_INGRESS);
@@ -288,7 +290,7 @@ OUTPUT:;
 #endif
 #if _NR_ELEMENTS_OUTPUT > 0
   // update map with OUTPUT_LABELING
-  updateForwardingDecision(OUTPUT_LABELING);
+  pkt->forwardingDecision = OUTPUT_LABELING;
 
   // call chain label INGRESS
   call_bpf_program(ctx, _ACTIONCACHE_EGRESS);

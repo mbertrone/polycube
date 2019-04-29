@@ -34,6 +34,8 @@ struct packetHeaders {
     uint32_t sessionId;
     uint8_t direction;
 
+    uint32_t forwardingDecision;
+
     // conntrackCommit attributes
     uint8_t mask;
     uint8_t setMask;
