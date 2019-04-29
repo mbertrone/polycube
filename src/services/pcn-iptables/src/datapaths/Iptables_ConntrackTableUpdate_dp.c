@@ -166,20 +166,24 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
 #else
   pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ConntrackTableUpdate] receiving packet M ");
 
-  struct conntrackCommit commit;
-
-  commit.state = ESTABLISHED;
-  commit.ttl = 0x1;
-  BIT_SET(commit.mask, BIT(BIT_CT_SET_TTL) | BIT(BIT_CT_SET_STATE) | BIT(BIT_CT_SET_MASK));
-  commit.setMask = BIT(BIT_CONNTRACK);
+  struct conntrackCommit commit = {0};
+  struct conntrackCommit * commitlookup;
 
 
-  int k = 0;
-//  commit = ctcommit.lookup(&k);
+//  commit.state = ESTABLISHED;
+//  commit.ttl = 0x1;
+//  BIT_SET(commit.mask, BIT(BIT_CT_SET_TTL) | BIT(BIT_CT_SET_STATE) | BIT(BIT_CT_SET_MASK));
+//  commit.setMask = BIT(BIT_CONNTRACK);
 //
-//  if (commit == NULL) {
-//    return RX_DROP;
-//  }
+//
+  int k = 0;
+  commitlookup = ctcommit.lookup(&k);
+
+  if (commitlookup == NULL) {
+    return RX_DROP;
+  }
+
+  __builtin_memcpy(&commit, commitlookup, sizeof(struct conntrackCommit));
 
   pcn_log(ctx, LOG_DEBUG,
           "[_HOOK] [ConntrackTableUpdate] commit lookup succeded! ");

@@ -275,7 +275,8 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
     return RX_DROP;
   }
 
-  struct conntrackCommit commit;
+//  struct conntrackCommit commit, *commit_lookup;
+  struct conntrackCommit commit = {0};
 
   // just calculate but not commit the commit struct
 
@@ -306,7 +307,12 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
     return RX_DROP;
   }
 
-//  commit->mask = 0;
+//  commit.mask = 0;
+//  commit.ttl = 0;
+//  commit.setMask = 0;
+//  commit.state = 0;
+//  commit.sequence = 0;
+//  commit.clearMask = 0;
 
   /* == TCP  == */
   if (pkt->l4proto == IPPROTO_TCP) {
@@ -968,6 +974,10 @@ action:;
           "[_HOOK] [ConntrackLabel] [action] commit.mask: 0x%x "
           "pkt->connStatus: %d ",
           commit.mask, pkt->connStatus);
+
+  k = 0;
+//  commit_lookup = ctcommit.lookup_or_init(&k, &commit);
+  ctcommit.update(&k, &commit);
 
   // TODO possible optimization, inject it if needed
   int *decision = getForwardingDecision();
