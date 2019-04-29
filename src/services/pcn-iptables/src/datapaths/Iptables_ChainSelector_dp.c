@@ -22,18 +22,27 @@ struct elements {
   uint64_t bits[_MAXRULES];
 };
 
+// packet metadata
 struct packetHeaders {
-  uint32_t srcIp;
-  uint32_t dstIp;
-  uint8_t l4proto;
-  uint16_t srcPort;
-  uint16_t dstPort;
-  uint8_t flags;
-  uint32_t seqN;
-  uint32_t ackN;
-  uint8_t connStatus;
-  uint32_t sessionId;
-  uint8_t direction;
+    uint32_t srcIp;
+    uint32_t dstIp;
+    uint8_t l4proto;
+    uint16_t srcPort;
+    uint16_t dstPort;
+    uint8_t flags;
+    uint32_t seqN;
+    uint32_t ackN;
+    uint8_t connStatus;
+    uint32_t sessionId;
+    uint8_t direction;
+
+    // conntrackCommit attributes
+    uint8_t mask;
+    uint8_t setMask;
+    uint8_t clearMask;
+    uint8_t state;
+    uint32_t sequence;
+    uint64_t ttl;
 } __attribute__((packed));
 
 enum {
