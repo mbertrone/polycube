@@ -166,31 +166,23 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
 #else
   pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ConntrackTableUpdate] receiving packet M ");
 
-  struct conntrackCommit commit = {0};
-  struct conntrackCommit * commitlookup;
+  struct conntrackCommit * commit;
 
-
-//  commit.state = ESTABLISHED;
-//  commit.ttl = 0x1;
-//  BIT_SET(commit.mask, BIT(BIT_CT_SET_TTL) | BIT(BIT_CT_SET_STATE) | BIT(BIT_CT_SET_MASK));
-//  commit.setMask = BIT(BIT_CONNTRACK);
-//
-//
   int k = 0;
-  commitlookup = ctcommit.lookup(&k);
+  commit = ctcommit.lookup(&k);
 
-  if (commitlookup == NULL) {
+  if (commit == NULL) {
     return RX_DROP;
   }
 
-  __builtin_memcpy(&commit, commitlookup, sizeof(struct conntrackCommit));
+//  __builtin_memcpy(&commit, commitlookup, sizeof(struct conntrackCommit));
 
   pcn_log(ctx, LOG_DEBUG,
           "[_HOOK] [ConntrackTableUpdate] commit lookup succeded! ");
-  pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ConntrackTableUpdate] commit.mask=0x%x ",
-          commit.mask);
+  pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ConntrackTableUpdate] commit->mask=0x%x ",
+          commit->mask);
 
-  if (commit.mask != 0) {
+  if (commit->mask != 0) {
     struct packetHeaders *pkt;
     k = 0;
     pkt = packet.lookup(&k);
@@ -210,51 +202,51 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
       return RX_DROP;
     }
 
-    if (CHECK_MASK_IS_SET(commit.mask, BIT(BIT_CT_SET_STATE))) {
-      session_value_p->state = commit.state;
+    if (CHECK_MASK_IS_SET(commit->mask, BIT(BIT_CT_SET_STATE))) {
+      session_value_p->state = commit->state;
       pcn_log(ctx, LOG_DEBUG,
-              "[_HOOK] [ConntrackTableUpdate] Committing commit.state = %d ",
-              commit.state);
+              "[_HOOK] [ConntrackTableUpdate] Committing commit->state = %d ",
+              commit->state);
     } else {
       pcn_log(ctx, LOG_DEBUG,
-              "[_HOOK] [ConntrackTableUpdate] NOT Committing commit.state");
+              "[_HOOK] [ConntrackTableUpdate] NOT Committing commit->state");
     }
-    if (CHECK_MASK_IS_SET(commit.mask, BIT(BIT_CT_SET_TTL))) {
-      session_value_p->ttl = commit.ttl;
+    if (CHECK_MASK_IS_SET(commit->mask, BIT(BIT_CT_SET_TTL))) {
+      session_value_p->ttl = commit->ttl;
       pcn_log(ctx, LOG_DEBUG,
-              "[_HOOK] [ConntrackTableUpdate] Committing commit.ttl = %d ",
-              commit.ttl);
+              "[_HOOK] [ConntrackTableUpdate] Committing commit->ttl = %d ",
+              commit->ttl);
     } else {
       pcn_log(ctx, LOG_DEBUG,
-              "[_HOOK] [ConntrackTableUpdate] NOT Committing commit.ttl");
+              "[_HOOK] [ConntrackTableUpdate] NOT Committing commit->ttl");
     }
-    if (CHECK_MASK_IS_SET(commit.mask, BIT(BIT_CT_SET_SEQUENCE))) {
-      session_value_p->sequence = commit.sequence;
+    if (CHECK_MASK_IS_SET(commit->mask, BIT(BIT_CT_SET_SEQUENCE))) {
+      session_value_p->sequence = commit->sequence;
       pcn_log(
           ctx, LOG_DEBUG,
-          "[_HOOK] [ConntrackTableUpdate] Committing commit.sequence = %d ",
-          commit.sequence);
+          "[_HOOK] [ConntrackTableUpdate] Committing commit->sequence = %d ",
+          commit->sequence);
     } else {
       pcn_log(
           ctx, LOG_DEBUG,
-          "[_HOOK] [ConntrackTableUpdate] NOT Committing commit.sequence ");
+          "[_HOOK] [ConntrackTableUpdate] NOT Committing commit->sequence ");
     }
-    if (CHECK_MASK_IS_SET(commit.mask, BIT(BIT_CT_SET_MASK))) {
-      BIT_SET(session_value_p->setMask, commit.setMask);
+    if (CHECK_MASK_IS_SET(commit->mask, BIT(BIT_CT_SET_MASK))) {
+      BIT_SET(session_value_p->setMask, commit->setMask);
       pcn_log(ctx, LOG_DEBUG,
-              "[_HOOK] [ConntrackTableUpdate] Committing commit.setMask = %x "
+              "[_HOOK] [ConntrackTableUpdate] Committing commit->setMask = %x "
               "new setMask = %x ",
-              commit.setMask, session_value_p->setMask);
+              commit->setMask, session_value_p->setMask);
     } else {
       pcn_log(ctx, LOG_DEBUG,
-              "[_HOOK] [ConntrackTableUpdate] NOT Committing commit.setMask ");
+              "[_HOOK] [ConntrackTableUpdate] NOT Committing commit->setMask ");
     }
     // BIT_CT_CLEAR_MASK not currently used
 
     goto forward_action;
   } else {
     pcn_log(ctx, LOG_DEBUG,
-            "[_HOOK] [ConntrackTableUpdate] commit.mask == 0 -> nothing to "
+            "[_HOOK] [ConntrackTableUpdate] commit->mask == 0 -> nothing to "
             "commit ");
     goto forward_action;
   }
