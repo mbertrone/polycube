@@ -68,6 +68,7 @@ struct tts_v {
 struct session_v {
   uint8_t setMask;     // bitmask for set fields
   uint8_t actionMask;  // bitmask for actions to be applied or not
+  uint8_t holdSessionId;
 
   uint64_t ttl;
   uint8_t state;

@@ -55,6 +55,7 @@ void Iptables::ActionCache::initSessions() {
   struct session_v clean_session;
   clean_session.setMask = 0;
   clean_session.actionMask = 0;
+  clean_session.holdSessionId = 0;
 
   for (std::vector<std::pair<uint32_t, session_v>>::iterator it =
            session_table_offline.begin();

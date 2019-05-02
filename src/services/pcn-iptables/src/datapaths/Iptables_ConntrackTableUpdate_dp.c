@@ -94,6 +94,7 @@ struct packetHeaders {
 struct session_v {
   uint8_t setMask;     // bitmask for set fields
   uint8_t actionMask;  // bitmask for actions to be applied or not
+  uint8_t holdSessionId; // avoid other threads to pick same session ID, also if not yet committed
 
   uint64_t ttl;
   uint8_t state;
@@ -165,7 +166,7 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
   pcn_log(ctx, LOG_DEBUG, "[_HOOK] [ConntrackTableUpdate] commit->mask=0x%x ",
           commit->mask);
 
-  if (commit->mask != 0) {
+    // TODO use conntrack label to set ctcommit for hold
     struct packetHeaders *pkt;
     k = 0;
     pkt = packet.lookup(&k);
@@ -184,6 +185,10 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
               sessionId);
       return RX_DROP;
     }
+
+    session_value_p->holdSessionId = 0;
+
+  if (commit->mask != 0) {
 
     if (CHECK_MASK_IS_SET(commit->mask, BIT(BIT_CT_SET_STATE))) {
       session_value_p->state = commit->state;

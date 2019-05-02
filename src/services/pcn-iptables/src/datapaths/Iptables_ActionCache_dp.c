@@ -55,6 +55,7 @@ struct tts_v {
 struct session_v {
   uint8_t setMask;     // bitmask for set fields
   uint8_t actionMask;  // bitmask for actions to be applied or not
+  uint8_t holdSessionId; // avoid other threads to pick same session ID, also if not yet committed
 
   uint64_t ttl;
   uint8_t state;
@@ -137,7 +138,7 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
       if (session_v_p == NULL) {
         goto drop;
       }
-      if (session_v_p->setMask == 0) {
+      if ((session_v_p->setMask == 0) && (session_v_p->holdSessionId == 0)) {
         goto new_index_found;
       }
     }
@@ -163,6 +164,7 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
 
     session_v_p->setMask = 0;
     session_v_p->actionMask = 0;
+    session_v_p->holdSessionId = 1;
 
     // TODO when nat module will be added, this module will not be in charge of
     // pushing both fwd and rev keys
