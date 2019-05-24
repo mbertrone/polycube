@@ -30,7 +30,7 @@ std::string Firewall::ConntrackMatch::getCode() {
   std::string noMacroCode = code;
 
   /*Replacing the maximum number of rules*/
-  replaceAll(noMacroCode, "_MAXRULES", std::to_string(firewall.maxRules / 64));
+  replaceAll(noMacroCode, "_MAXRULES", std::to_string(FROM_NRULES_TO_NELEMENTS(firewall.maxRules)));
 
   /*Replacing hops*/
   replaceAll(noMacroCode, "_NEXT_HOP_1", std::to_string(index + 1));

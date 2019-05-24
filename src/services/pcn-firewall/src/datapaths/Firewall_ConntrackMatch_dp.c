@@ -52,9 +52,9 @@ static __always_inline struct elements *getShared() {
   return sharedEle.lookup(&key);
 }
 
-BPF_HASH(Conntrack, uint8_t, struct elements);
-static __always_inline struct elements *getBitVect(uint8_t *key) {
-  return Conntrack.lookup(key);
+BPF_ARRAY(Conntrack_DIRECTION, struct elements, 4);
+static __always_inline struct elements *getBitVect(uint32_t *key) {
+  return Conntrack_DIRECTION.lookup(key);
 }
 #endif
 
@@ -71,37 +71,47 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
   }
 
   uint8_t connStatus = pkt->connStatus;
+  uint32_t ct = connStatus;
   pcn_log(ctx, LOG_DEBUG,
           "[_CHAIN_NAME][ConntrackMatch]: received a packet with state %d",
           pkt->connStatus);
 
-  struct elements *ele = getBitVect(&connStatus);
+  struct elements *ele = getBitVect(&ct);
 
   if (ele == NULL) {
-    connStatus = CONNTRACK_INVALID;
-    ele = getBitVect(&connStatus);
-    if (ele == NULL) {
-      pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackMatch]: No match");
-      _DEFAULTACTION
-    }
+    pcn_log(ctx, LOG_DEBUG,
+            "[_CHAIN_NAME][ConntrackMatch]: Array Lookup miss. this should never happen.");
+    return RX_DROP;
   }
   struct elements *result = getShared();
   if (result == NULL) {
     /*Can't happen. The PERCPU is preallocated.*/
     return RX_DROP;
   } else {
-/*#pragma unroll does not accept a loop with a single iteration, so we need to
- * distinguish cases to avoid a verifier error.*/
+    /*#pragma unroll does not accept a loop with a single iteration, so we need
+     * to
+     * distinguish cases to avoid a verifier error.*/
+    bool isAllZero = true;
 #if _NR_ELEMENTS == 1
     (result->bits)[0] = (ele->bits)[0] & (result->bits)[0];
+    if (result->bits[0] != 0)
+      isAllZero = false;
 #else
     int i = 0;
 #pragma unroll
     for (i = 0; i < _NR_ELEMENTS; ++i) {
       (result->bits)[i] = (result->bits)[i] & (ele->bits)[i];
+      if (result->bits[i] != 0)
+        isAllZero = false;
     }
 
 #endif
+    if (isAllZero) {
+      pcn_log(
+          ctx, LOG_DEBUG,
+          "[_CHAIN_NAME][ConntrackMatch]: Bitvector is all zero. Break pipeline.");
+      _DEFAULTACTION
+    }
   }  // if result == NULL
 
   call_next_program(ctx, _NEXT_HOP_1);
