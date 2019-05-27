@@ -244,6 +244,8 @@ void Chain::updateChain() {
     if (j == 1)
       second = true;
 
+    std::cout << "++++Conntrack Map empty " << conntrack_map.empty() << std::endl;
+
     // Looping through conntrack
     if (!conntrack_map.empty() && conntrack_break ^ second) {
       // At least one rule requires a matching on conntrack, so it can be
@@ -266,7 +268,6 @@ void Chain::updateChain() {
       }
       ++index;
     }
-    conntrack_map.clear();
     // Done looping through conntrack
 
     // Looping through IP source
@@ -285,7 +286,6 @@ void Chain::updateChain() {
       // Now the program is loaded, populate it.
       iplookup->updateMap(ipsrc_map);
     }
-    ipsrc_map.clear();
     // Done looping through IP source
 
     // Looping through IP destination
@@ -304,7 +304,6 @@ void Chain::updateChain() {
       // Now the program is loaded, populate it.
       iplookup->updateMap(ipdst_map);
     }
-    ipdst_map.clear();
     // Done looping through IP destination
 
     // Looping through l4 protocol
@@ -324,7 +323,6 @@ void Chain::updateChain() {
       // Now the program is loaded, populate it.
       protocollookup->updateMap(protocol_map);
     }
-    protocol_map.clear();
     // Done looping through l4 protocol
 
     // Looping through source port
@@ -343,7 +341,6 @@ void Chain::updateChain() {
       // Now the program is loaded, populate it.
       portlookup->updateMap(portsrc_map);
     }
-    portsrc_map.clear();
     // Done looping through source port
 
     // Looping through destination port
@@ -362,7 +359,6 @@ void Chain::updateChain() {
       // Now the program is loaded, populate it.
       portlookup->updateMap(portdst_map);
     }
-    portdst_map.clear();
     // Done looping through destination port
 
     // Looping through tcp flags_map
@@ -381,8 +377,6 @@ void Chain::updateChain() {
       // Now the program is loaded, populate it.
       tcpflagslookup->updateMap(flags_map);
     }
-    flags_map.clear();
-
     // Done looping through tcp flags_map
   }
 
