@@ -53,7 +53,8 @@ bool Firewall::ConntrackMatch::updateTableValue(
 
   try {
     auto table = firewall.get_raw_table(tableName, index, getProgramType());
-    table.set(&status, value.data());
+    uint32_t s = status;
+    table.set(&s, value.data());
   } catch (...) {
     return false;
   }

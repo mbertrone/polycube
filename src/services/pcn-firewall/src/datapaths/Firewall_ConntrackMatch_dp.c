@@ -33,7 +33,8 @@ struct packetHeaders {
   uint32_t seqN;
   uint32_t ackN;
   uint8_t connStatus;
-};
+} __attribute__((packed));
+
 
 BPF_TABLE("extern", int, struct packetHeaders, packet, 1);
 static __always_inline struct packetHeaders *getPacket() {
@@ -52,9 +53,9 @@ static __always_inline struct elements *getShared() {
   return sharedEle.lookup(&key);
 }
 
-BPF_ARRAY(Conntrack_DIRECTION, struct elements, 4);
+BPF_ARRAY(Conntrack, struct elements, 4);
 static __always_inline struct elements *getBitVect(uint32_t *key) {
-  return Conntrack_DIRECTION.lookup(key);
+  return Conntrack.lookup(key);
 }
 #endif
 

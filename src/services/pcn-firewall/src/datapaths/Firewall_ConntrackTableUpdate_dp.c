@@ -93,7 +93,7 @@ struct packetHeaders {
   uint32_t seqN;
   uint32_t ackN;
   uint8_t connStatus;
-};
+} __attribute__((packed));
 
 struct ct_k {
   uint32_t srcIp;

@@ -34,7 +34,7 @@ struct packetHeaders {
   uint32_t seqN;
   uint32_t ackN;
   uint8_t connStatus;
-};
+} __attribute__((packed));
 
 struct elements {
   uint64_t bits[_MAXRULES];
@@ -138,6 +138,14 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
 
 #endif
 #endif
-  call_next_program(ctx, _NEXT_HOP);
+
+  pcn_log(ctx, LOG_TRACE, "[_CHAIN_NAME] [Parser] srcIp: %I dstIp: %I l4proto:0x%x ",
+          pkt->srcIp, pkt->dstIp, pkt->l4proto);
+  pcn_log(ctx, LOG_TRACE, "[_CHAIN_NAME] [Parser] sPort: %P dPort: %P ", pkt->srcPort,
+          pkt->dstPort);
+
+//  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][Parser]: calling conntrack label");
+
+  call_next_program(ctx, _CONNTRACKLABEL);
   return RX_DROP;
 }

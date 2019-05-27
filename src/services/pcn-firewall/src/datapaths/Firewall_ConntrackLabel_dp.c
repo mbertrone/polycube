@@ -78,7 +78,7 @@ struct packetHeaders {
   uint32_t seqN;
   uint32_t ackN;
   uint8_t connStatus;
-};
+} __attribute__((packed));
 
 struct ct_k {
   uint32_t srcIp;
@@ -456,7 +456,7 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
 
 action:
 #if _CONNTRACK_MODE == 1
-  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackLabel]: Conntrack mode == 1 calling chainforwarder");
+  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackLabel][Label=%d] Conntrack mode == 1 calling chainforwarder", pkt->connStatus);
   // Manual mode
   call_next_program(ctx, _CHAINFORWARDER);
   return RX_DROP;

@@ -40,6 +40,8 @@ std::string Firewall::Parser::getCode() {
 
   replaceAll(noMacroCode, "_DEFAULTACTION", this->defaultActionString());
 
+  replaceAll(noMacroCode, "_CONNTRACKLABEL", std::to_string(ModulesConstants::CONNTRACKLABEL));
+
   try {
     replaceAll(noMacroCode, "_NR_ELEMENTS",
              std::to_string(FROM_NRULES_TO_NELEMENTS(
