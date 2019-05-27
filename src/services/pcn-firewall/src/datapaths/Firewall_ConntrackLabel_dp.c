@@ -56,7 +56,6 @@ struct icmphdr {
 };
 
 enum {
-  WILDCARD,
   NEW,
   ESTABLISHED,
   RELATED,
@@ -457,14 +456,19 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
 
 action:
 #if _CONNTRACK_MODE == 1
+  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackLabel]: Conntrack mode == 1 calling chainforwarder");
   // Manual mode
   call_next_program(ctx, _CHAINFORWARDER);
   return RX_DROP;
 #elif _CONNTRACK_MODE == 2
   // Automatic mode: if established, forward directly
+  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackLabel]: Conntrack mode == 2 ");
+
   if (pkt->connStatus == ESTABLISHED) {
+    pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackLabel]: Conntrack mode == 2 ESTABLISHED calling ct table update");
     call_next_program(ctx, _CONNTRACKTABLEUPDATE);
   } else {
+    pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackLabel]: Conntrack mode == 2 ESTABLISHED calling chain fwd");
     call_next_program(ctx, _CHAINFORWARDER);
   }
   pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackLabel]: Something went wrong.");

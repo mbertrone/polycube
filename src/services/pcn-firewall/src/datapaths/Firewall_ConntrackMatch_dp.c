@@ -21,7 +21,7 @@
 #define IPPROTO_TCP 6
 #define IPPROTO_UDP 17
 
-#define CONNTRACK_INVALID 0
+//#define CONNTRACK_INVALID 0
 
 struct packetHeaders {
   uint32_t srcIp;
