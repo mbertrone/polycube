@@ -330,7 +330,7 @@ void Chain::updateChain() {
       // At least one rule requires a matching on  source port__map,
       // so inject the  module  on the first available position
       Firewall::L4PortLookup *portlookup =
-              new Firewall::L4PortLookup(index, name, SOURCE_TYPE, this->parent_);
+              new Firewall::L4PortLookup(index, name, SOURCE_TYPE, this->parent_, portsrc_map);
       newProgramsChain[ModulesConstants::PORTSOURCE] = portlookup;
       // If this is the first module, adjust parsing to forward to it.
       if (index == startingIndex) {
@@ -348,7 +348,7 @@ void Chain::updateChain() {
       // At least one rule requires a matching on source port__map,
       // so inject the module  on the first available position
       Firewall::L4PortLookup *portlookup =
-              new Firewall::L4PortLookup(index, name, DESTINATION_TYPE, this->parent_);
+              new Firewall::L4PortLookup(index, name, DESTINATION_TYPE, this->parent_, portdst_map);
       newProgramsChain[ModulesConstants::PORTDESTINATION] = portlookup;
       // If this is the first module, adjust parsing to forward to it.
       if (index == startingIndex) {
