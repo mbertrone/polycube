@@ -20,6 +20,8 @@
 Firewall::BitScan::BitScan(const int &index, const ChainNameEnum &direction,
                            Firewall &outer)
     : Firewall::Program(firewall_code_bitscan, index, direction, outer) {
+  std::cout << "++ bitscan constructor" << std::endl;
+
   load();
   loadIndex64();
 }
@@ -45,7 +47,7 @@ std::string Firewall::BitScan::getCode() {
   std::string noMacroCode = code;
 
   /*Replacing the maximum number of rules*/
-  replaceAll(noMacroCode, "_MAXRULES", std::to_string(firewall.maxRules / 64));
+  replaceAll(noMacroCode, "_MAXRULES", std::to_string(FROM_NRULES_TO_NELEMENTS(firewall.maxRules)));
   /*Replacing hops*/
   for (auto const &hop : hops) {
     replaceAll(noMacroCode, hop.first,

@@ -23,6 +23,7 @@ Firewall::DefaultAction::DefaultAction(const int &index,
                                        Firewall &outer)
     : Firewall::Program(firewall_code_defaultaction, index, direction,
                         outer) {
+  std::cout << "++ default action constructor" << std::endl;
   load();
 }
 

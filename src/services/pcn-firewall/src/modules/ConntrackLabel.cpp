@@ -22,6 +22,8 @@ Firewall::ConntrackLabel::ConntrackLabel(const int &index,
                                          Firewall &outer)
     : Firewall::Program(firewall_code_conntracklabel, index, direction,
                         outer) {
+  std::cout << "++ ct label constructor" << std::endl;
+
   load();
 }
 

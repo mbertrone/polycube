@@ -146,6 +146,12 @@ static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
 
 //  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][Parser]: calling conntrack label");
 
+#if _CONNTRACK_ENABLED
   call_next_program(ctx, _CONNTRACKLABEL);
+#else
+  call_next_program(ctx, _CHAINFORWARDER);
+#endif
+//  call_next_program(ctx, _NEXT_HOP);
+
   return RX_DROP;
 }

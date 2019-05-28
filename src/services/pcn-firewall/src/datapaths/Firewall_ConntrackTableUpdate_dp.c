@@ -132,10 +132,11 @@ static __always_inline uint64_t *time_get_ns() {
 }
 
 static int handle_rx(struct CTXTYPE *ctx, struct pkt_metadata *md) {
-  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackTableUpdate]: Receiving packet");
 #if _CONNTRACK_MODE == 0
+  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackTableUpdate]: Receiving packet - conntrack disabled - pass");
   return RX_OK;
 #else
+  pcn_log(ctx, LOG_DEBUG, "[_CHAIN_NAME][ConntrackTableUpdate]: Receiving packet");
   int k = 0;
   struct packetHeaders *pkt = packet.lookup(&k);
   if (pkt == NULL) {

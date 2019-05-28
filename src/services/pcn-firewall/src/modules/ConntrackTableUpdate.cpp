@@ -25,6 +25,8 @@ Firewall::ConntrackTableUpdate::ConntrackTableUpdate(const int &index,
     const ChainNameEnum &direction, Firewall &outer)
     : Firewall::Program(firewall_code_conntracktableupdate, index,
                         direction, outer) {
+  std::cout << "++ ct update constructor" << std::endl;
+
   load();
 
 
@@ -47,7 +49,7 @@ std::string Firewall::ConntrackTableUpdate::getCode() {
   std::string noMacroCode = code;
 
   /*Replacing the maximum number of rules*/
-  replaceAll(noMacroCode, "_MAXRULES", std::to_string(firewall.maxRules / 64));
+  replaceAll(noMacroCode, "_MAXRULES", std::to_string(FROM_NRULES_TO_NELEMENTS(firewall.maxRules)));
 
   /*Replacing hops*/
   replaceAll(noMacroCode, "_NEXT_HOP_1", std::to_string(index + 1));

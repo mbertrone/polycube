@@ -21,6 +21,8 @@ Firewall::ConntrackMatch::ConntrackMatch(const int &index,
                                          const ChainNameEnum &direction,
                                          Firewall &outer)
     : Firewall::Program(firewall_code_conntrackmatch, index, direction, outer) {
+  std::cout << "++ ct match constructor" << std::endl;
+
   load();
 }
 

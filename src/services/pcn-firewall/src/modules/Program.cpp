@@ -41,6 +41,7 @@ int Firewall::Program::getIndex() {
 
 bool Firewall::Program::reload() {
   try {
+    std::cout << "++reload: " << index << std::endl;
     firewall.reload(getAllCode(), index, getProgramType());
   } catch (...) {
     return false;
@@ -50,6 +51,7 @@ bool Firewall::Program::reload() {
 
 bool Firewall::Program::load() {
   try {
+    std::cout << "++load: " << index << std::endl;
     firewall.add_program(getAllCode(), index, getProgramType());
   } catch (std::runtime_error e) {
     std::cout << e.what() << std::endl;

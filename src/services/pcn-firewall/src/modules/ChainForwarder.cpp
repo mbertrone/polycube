@@ -22,6 +22,8 @@ Firewall::ChainForwarder::ChainForwarder(const int &index,
                                          Firewall &outer)
     : Firewall::Program(firewall_code_chainforwarder, index, direction,
                         outer) {
+  std::cout << "++ chain fwd constructor" << std::endl;
+
   load();
 }
 

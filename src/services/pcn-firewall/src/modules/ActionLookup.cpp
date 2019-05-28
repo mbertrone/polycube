@@ -22,6 +22,8 @@ Firewall::ActionLookup::ActionLookup(const int &index,
                                      const ChainNameEnum &direction,
                                      Firewall &outer)
     : Firewall::Program(firewall_code_actionlookup, index, direction, outer) {
+  std::cout << "++ action lookup constructor" << std::endl;
+
   load();
 }
 
@@ -31,7 +33,7 @@ std::string Firewall::ActionLookup::getCode() {
   std::string noMacroCode = code;
 
   /*Replacing the maximum number of rules*/
-  replaceAll(noMacroCode, "_MAXRULES", std::to_string(firewall.maxRules / 64));
+  replaceAll(noMacroCode, "_MAXRULES", std::to_string(FROM_NRULES_TO_NELEMENTS(firewall.maxRules)));
 
   /*Replacing nrElements*/
   replaceAll(noMacroCode, "_NR_ELEMENTS",

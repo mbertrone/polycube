@@ -21,6 +21,8 @@ Firewall::L4PortLookup::L4PortLookup(const int &index,
                                      const ChainNameEnum &direction,
                                      const int &type, Firewall &outer)
     : Firewall::Program(firewall_code_l4portlookup, index, direction, outer) {
+  std::cout << "++ l4 port constructor" << std::endl;
+
   this->type = type;
 
   wildcard_rule_ = false;
@@ -34,6 +36,8 @@ Firewall::L4PortLookup::L4PortLookup(const int &index,
                                      const int &type, Firewall &outer,
                                      const std::map<uint16_t, std::vector<uint64_t>> &ports)
     : Firewall::Program(firewall_code_l4portlookup, index, direction, outer) {
+  std::cout << "++ l4 port constructor" << std::endl;
+
 
   this->type = type;
 
@@ -59,7 +63,7 @@ std::string Firewall::L4PortLookup::getCode() {
   std::string noMacroCode = code;
 
   /*Replacing the maximum number of rules*/
-  replaceAll(noMacroCode, "_MAXRULES", std::to_string(firewall.maxRules / 64));
+  replaceAll(noMacroCode, "_MAXRULES", std::to_string(FROM_NRULES_TO_NELEMENTS(firewall.maxRules)));
 
   /*Replacing hops*/
   for (auto const &hop : hops) {
