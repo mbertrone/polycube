@@ -33,22 +33,21 @@ module monitor {
     }
 
     leaf deliverration {
-        type decimal64;
+        type uint64;
         description "pkts delivered to application over total number";
         config false;
     }
 
     leaf responseratio {
-        type decimal64;
+        type uint64;
         description "pkts request to send over received pkts";
         config false;
     }
 
-    leat timestamp {
+    leaf timestamp {
         type uint64;
         description "Time from epoch u64";
         config false;
     }
   }
-
 }
