@@ -20,18 +20,18 @@ namespace model {
 StatsJsonObject::StatsJsonObject() {
   m_tcpattemptfailsIsSet = false;
   m_tcpoutrstsIsSet = false;
-  m_deliverrationIsSet = false;
+  m_deliverratioIsSet = false;
   m_responseratioIsSet = false;
-  m_timestampIsSet = false;
+  m_lastupdateIsSet = false;
 }
 
 StatsJsonObject::StatsJsonObject(const nlohmann::json &val) :
   JsonObjectBase(val) {
   m_tcpattemptfailsIsSet = false;
   m_tcpoutrstsIsSet = false;
-  m_deliverrationIsSet = false;
+  m_deliverratioIsSet = false;
   m_responseratioIsSet = false;
-  m_timestampIsSet = false;
+  m_lastupdateIsSet = false;
 
 
   if (val.count("tcpattemptfails")) {
@@ -42,16 +42,16 @@ StatsJsonObject::StatsJsonObject(const nlohmann::json &val) :
     setTcpoutrsts(val.at("tcpoutrsts").get<uint64_t>());
   }
 
-  if (val.count("deliverration")) {
-    setDeliverration(val.at("deliverration").get<uint64_t>());
+  if (val.count("deliverratio")) {
+    setDeliverratio(val.at("deliverratio").get<uint64_t>());
   }
 
   if (val.count("responseratio")) {
     setResponseratio(val.at("responseratio").get<uint64_t>());
   }
 
-  if (val.count("timestamp")) {
-    setTimestamp(val.at("timestamp").get<uint64_t>());
+  if (val.count("lastupdate")) {
+    setLastupdate(val.at("lastupdate").get<uint64_t>());
   }
 }
 
@@ -69,16 +69,16 @@ nlohmann::json StatsJsonObject::toJson() const {
     val["tcpoutrsts"] = m_tcpoutrsts;
   }
 
-  if (m_deliverrationIsSet) {
-    val["deliverration"] = m_deliverration;
+  if (m_deliverratioIsSet) {
+    val["deliverratio"] = m_deliverratio;
   }
 
   if (m_responseratioIsSet) {
     val["responseratio"] = m_responseratio;
   }
 
-  if (m_timestampIsSet) {
-    val["timestamp"] = m_timestamp;
+  if (m_lastupdateIsSet) {
+    val["lastupdate"] = m_lastupdate;
   }
 
   return val;
@@ -118,21 +118,21 @@ void StatsJsonObject::unsetTcpoutrsts() {
   m_tcpoutrstsIsSet = false;
 }
 
-uint64_t StatsJsonObject::getDeliverration() const {
-  return m_deliverration;
+uint64_t StatsJsonObject::getDeliverratio() const {
+  return m_deliverratio;
 }
 
-void StatsJsonObject::setDeliverration(uint64_t value) {
-  m_deliverration = value;
-  m_deliverrationIsSet = true;
+void StatsJsonObject::setDeliverratio(uint64_t value) {
+  m_deliverratio = value;
+  m_deliverratioIsSet = true;
 }
 
-bool StatsJsonObject::deliverrationIsSet() const {
-  return m_deliverrationIsSet;
+bool StatsJsonObject::deliverratioIsSet() const {
+  return m_deliverratioIsSet;
 }
 
-void StatsJsonObject::unsetDeliverration() {
-  m_deliverrationIsSet = false;
+void StatsJsonObject::unsetDeliverratio() {
+  m_deliverratioIsSet = false;
 }
 
 uint64_t StatsJsonObject::getResponseratio() const {
@@ -152,21 +152,21 @@ void StatsJsonObject::unsetResponseratio() {
   m_responseratioIsSet = false;
 }
 
-uint64_t StatsJsonObject::getTimestamp() const {
-  return m_timestamp;
+uint64_t StatsJsonObject::getLastupdate() const {
+  return m_lastupdate;
 }
 
-void StatsJsonObject::setTimestamp(uint64_t value) {
-  m_timestamp = value;
-  m_timestampIsSet = true;
+void StatsJsonObject::setLastupdate(uint64_t value) {
+  m_lastupdate = value;
+  m_lastupdateIsSet = true;
 }
 
-bool StatsJsonObject::timestampIsSet() const {
-  return m_timestampIsSet;
+bool StatsJsonObject::lastupdateIsSet() const {
+  return m_lastupdateIsSet;
 }
 
-void StatsJsonObject::unsetTimestamp() {
-  m_timestampIsSet = false;
+void StatsJsonObject::unsetLastupdate() {
+  m_lastupdateIsSet = false;
 }
 
 

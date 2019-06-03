@@ -51,7 +51,7 @@ class StatsBase {
   /// <summary>
   /// pkts delivered to application over total number
   /// </summary>
-  virtual uint64_t getDeliverration() = 0;
+  virtual uint64_t getDeliverratio() = 0;
 
   /// <summary>
   /// pkts request to send over received pkts
@@ -59,9 +59,9 @@ class StatsBase {
   virtual uint64_t getResponseratio() = 0;
 
   /// <summary>
-  /// Time from epoch u64
+  /// last update (time from epoch in milliseconds)
   /// </summary>
-  virtual uint64_t getTimestamp() = 0;
+  virtual uint64_t getLastupdate() = 0;
 
   std::shared_ptr<spdlog::logger> logger();
  protected:

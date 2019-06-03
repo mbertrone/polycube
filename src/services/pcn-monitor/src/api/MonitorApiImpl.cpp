@@ -119,9 +119,9 @@ read_monitor_stats_by_id(const std::string &name) {
 }
 
 /**
-* @brief   Read deliverration by ID
+* @brief   Read deliverratio by ID
 *
-* Read operation of resource: deliverration*
+* Read operation of resource: deliverratio*
 *
 * @param[in] name ID of name
 *
@@ -129,10 +129,28 @@ read_monitor_stats_by_id(const std::string &name) {
 * uint64_t
 */
 uint64_t
-read_monitor_stats_deliverration_by_id(const std::string &name) {
+read_monitor_stats_deliverratio_by_id(const std::string &name) {
   auto monitor = get_cube(name);
   auto stats = monitor->getStats();
-  return stats->getDeliverration();
+  return stats->getDeliverratio();
+
+}
+
+/**
+* @brief   Read lastupdate by ID
+*
+* Read operation of resource: lastupdate*
+*
+* @param[in] name ID of name
+*
+* Responses:
+* uint64_t
+*/
+uint64_t
+read_monitor_stats_lastupdate_by_id(const std::string &name) {
+  auto monitor = get_cube(name);
+  auto stats = monitor->getStats();
+  return stats->getLastupdate();
 
 }
 
@@ -187,24 +205,6 @@ read_monitor_stats_tcpoutrsts_by_id(const std::string &name) {
   auto monitor = get_cube(name);
   auto stats = monitor->getStats();
   return stats->getTcpoutrsts();
-
-}
-
-/**
-* @brief   Read timestamp by ID
-*
-* Read operation of resource: timestamp*
-*
-* @param[in] name ID of name
-*
-* Responses:
-* uint64_t
-*/
-uint64_t
-read_monitor_stats_timestamp_by_id(const std::string &name) {
-  auto monitor = get_cube(name);
-  auto stats = monitor->getStats();
-  return stats->getTimestamp();
 
 }
 

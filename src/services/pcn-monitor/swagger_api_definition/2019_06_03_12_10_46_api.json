@@ -707,7 +707,7 @@
                 "operationId": "readMonitorStatsTcpoutrstsByID"
             }
         },
-        "/monitor/{name}/stats/deliverration/": {
+        "/monitor/{name}/stats/deliverratio/": {
             "get": {
                 "responses": {
                     "200": {
@@ -729,7 +729,7 @@
                         "description": "Bad request"
                     }
                 },
-                "description": "Read operation of resource: deliverration",
+                "description": "Read operation of resource: deliverratio",
                 "parameters": [
                     {
                         "description": "ID of name",
@@ -745,11 +745,11 @@
                 "tags": [
                     "monitor"
                 ],
-                "summary": "Read deliverration by ID",
+                "summary": "Read deliverratio by ID",
                 "consumes": [
                     "application/json"
                 ],
-                "operationId": "readMonitorStatsDeliverrationByID"
+                "operationId": "readMonitorStatsDeliverratioByID"
             }
         },
         "/monitor/{name}/stats/responseratio/": {
@@ -797,7 +797,7 @@
                 "operationId": "readMonitorStatsResponseratioByID"
             }
         },
-        "/monitor/{name}/stats/timestamp/": {
+        "/monitor/{name}/stats/lastupdate/": {
             "get": {
                 "responses": {
                     "200": {
@@ -805,7 +805,7 @@
                         "schema": {
                             "readOnly": true,
                             "type": "integer",
-                            "description": "Time from epoch u64",
+                            "description": "last update (time from epoch in milliseconds)",
                             "format": "uint64"
                         }
                     },
@@ -819,7 +819,7 @@
                         "description": "Bad request"
                     }
                 },
-                "description": "Read operation of resource: timestamp",
+                "description": "Read operation of resource: lastupdate",
                 "parameters": [
                     {
                         "description": "ID of name",
@@ -835,11 +835,11 @@
                 "tags": [
                     "monitor"
                 ],
-                "summary": "Read timestamp by ID",
+                "summary": "Read lastupdate by ID",
                 "consumes": [
                     "application/json"
                 ],
-                "operationId": "readMonitorStatsTimestampByID"
+                "operationId": "readMonitorStatsLastupdateByID"
             }
         }
     },
@@ -858,7 +858,7 @@
                     "description": "TCP sent with RST flag",
                     "format": "uint64"
                 },
-                "deliverration": {
+                "deliverratio": {
                     "readOnly": true,
                     "type": "integer",
                     "description": "pkts delivered to application over total number",
@@ -870,10 +870,10 @@
                     "description": "pkts request to send over received pkts",
                     "format": "uint64"
                 },
-                "timestamp": {
+                "lastupdate": {
                     "readOnly": true,
                     "type": "integer",
-                    "description": "Time from epoch u64",
+                    "description": "last update (time from epoch in milliseconds)",
                     "format": "uint64"
                 }
             },

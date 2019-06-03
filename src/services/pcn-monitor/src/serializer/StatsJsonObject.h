@@ -55,10 +55,10 @@ public:
   /// <summary>
   /// pkts delivered to application over total number
   /// </summary>
-  uint64_t getDeliverration() const;
-  void setDeliverration(uint64_t value);
-  bool deliverrationIsSet() const;
-  void unsetDeliverration();
+  uint64_t getDeliverratio() const;
+  void setDeliverratio(uint64_t value);
+  bool deliverratioIsSet() const;
+  void unsetDeliverratio();
 
   /// <summary>
   /// pkts request to send over received pkts
@@ -69,24 +69,24 @@ public:
   void unsetResponseratio();
 
   /// <summary>
-  /// Time from epoch u64
+  /// last update (time from epoch in milliseconds)
   /// </summary>
-  uint64_t getTimestamp() const;
-  void setTimestamp(uint64_t value);
-  bool timestampIsSet() const;
-  void unsetTimestamp();
+  uint64_t getLastupdate() const;
+  void setLastupdate(uint64_t value);
+  bool lastupdateIsSet() const;
+  void unsetLastupdate();
 
 private:
   uint64_t m_tcpattemptfails;
   bool m_tcpattemptfailsIsSet;
   uint64_t m_tcpoutrsts;
   bool m_tcpoutrstsIsSet;
-  uint64_t m_deliverration;
-  bool m_deliverrationIsSet;
+  uint64_t m_deliverratio;
+  bool m_deliverratioIsSet;
   uint64_t m_responseratio;
   bool m_responseratioIsSet;
-  uint64_t m_timestamp;
-  bool m_timestampIsSet;
+  uint64_t m_lastupdate;
+  bool m_lastupdateIsSet;
 };
 
 }

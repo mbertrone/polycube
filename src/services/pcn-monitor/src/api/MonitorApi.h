@@ -35,11 +35,11 @@ Response delete_monitor_by_id_handler(const char *name, const Key *keys, size_t 
 Response read_monitor_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_monitor_list_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_monitor_stats_by_id_handler(const char *name, const Key *keys, size_t num_keys);
-Response read_monitor_stats_deliverration_by_id_handler(const char *name, const Key *keys, size_t num_keys);
+Response read_monitor_stats_deliverratio_by_id_handler(const char *name, const Key *keys, size_t num_keys);
+Response read_monitor_stats_lastupdate_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_monitor_stats_responseratio_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_monitor_stats_tcpattemptfails_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response read_monitor_stats_tcpoutrsts_by_id_handler(const char *name, const Key *keys, size_t num_keys);
-Response read_monitor_stats_timestamp_by_id_handler(const char *name, const Key *keys, size_t num_keys);
 Response replace_monitor_by_id_handler(const char *name, const Key *keys, size_t num_keys, const char *value);
 Response update_monitor_by_id_handler(const char *name, const Key *keys, size_t num_keys, const char *value);
 Response update_monitor_list_by_id_handler(const char *name, const Key *keys, size_t num_keys, const char *value);

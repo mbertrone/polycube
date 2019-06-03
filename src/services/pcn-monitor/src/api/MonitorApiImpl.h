@@ -38,11 +38,11 @@ namespace MonitorApiImpl {
   MonitorJsonObject read_monitor_by_id(const std::string &name);
   std::vector<MonitorJsonObject> read_monitor_list_by_id();
   StatsJsonObject read_monitor_stats_by_id(const std::string &name);
-  uint64_t read_monitor_stats_deliverration_by_id(const std::string &name);
+  uint64_t read_monitor_stats_deliverratio_by_id(const std::string &name);
+  uint64_t read_monitor_stats_lastupdate_by_id(const std::string &name);
   uint64_t read_monitor_stats_responseratio_by_id(const std::string &name);
   uint64_t read_monitor_stats_tcpattemptfails_by_id(const std::string &name);
   uint64_t read_monitor_stats_tcpoutrsts_by_id(const std::string &name);
-  uint64_t read_monitor_stats_timestamp_by_id(const std::string &name);
   void replace_monitor_by_id(const std::string &name, const MonitorJsonObject &value);
   void update_monitor_by_id(const std::string &name, const MonitorJsonObject &value);
   void update_monitor_list_by_id(const std::vector<MonitorJsonObject> &value);

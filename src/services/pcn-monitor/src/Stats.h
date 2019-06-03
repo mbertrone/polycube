@@ -34,7 +34,7 @@ class Stats : public StatsBase {
   /// <summary>
   /// pkts delivered to application over total number
   /// </summary>
-  uint64_t getDeliverration() override;
+  uint64_t getDeliverratio() override;
 
   /// <summary>
   /// pkts request to send over received pkts
@@ -42,7 +42,7 @@ class Stats : public StatsBase {
   uint64_t getResponseratio() override;
 
   /// <summary>
-  /// Time from epoch u64
+  /// last update (time from epoch in milliseconds)
   /// </summary>
-  uint64_t getTimestamp() override;
+  uint64_t getLastupdate() override;
 };

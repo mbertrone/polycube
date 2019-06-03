@@ -105,7 +105,7 @@ Response read_monitor_stats_by_id_handler(
   }
 }
 
-Response read_monitor_stats_deliverration_by_id_handler(
+Response read_monitor_stats_deliverratio_by_id_handler(
   const char *name, const Key *keys,
   size_t num_keys ) {
   // Getting the path params
@@ -113,7 +113,24 @@ Response read_monitor_stats_deliverration_by_id_handler(
 
   try {
 
-    auto x = read_monitor_stats_deliverration_by_id(unique_name);
+    auto x = read_monitor_stats_deliverratio_by_id(unique_name);
+    nlohmann::json response_body;
+    response_body = x;
+    return { kOk, ::strdup(response_body.dump().c_str()) };
+  } catch(const std::exception &e) {
+    return { kGenericError, ::strdup(e.what()) };
+  }
+}
+
+Response read_monitor_stats_lastupdate_by_id_handler(
+  const char *name, const Key *keys,
+  size_t num_keys ) {
+  // Getting the path params
+  std::string unique_name { name };
+
+  try {
+
+    auto x = read_monitor_stats_lastupdate_by_id(unique_name);
     nlohmann::json response_body;
     response_body = x;
     return { kOk, ::strdup(response_body.dump().c_str()) };
@@ -165,23 +182,6 @@ Response read_monitor_stats_tcpoutrsts_by_id_handler(
   try {
 
     auto x = read_monitor_stats_tcpoutrsts_by_id(unique_name);
-    nlohmann::json response_body;
-    response_body = x;
-    return { kOk, ::strdup(response_body.dump().c_str()) };
-  } catch(const std::exception &e) {
-    return { kGenericError, ::strdup(e.what()) };
-  }
-}
-
-Response read_monitor_stats_timestamp_by_id_handler(
-  const char *name, const Key *keys,
-  size_t num_keys ) {
-  // Getting the path params
-  std::string unique_name { name };
-
-  try {
-
-    auto x = read_monitor_stats_timestamp_by_id(unique_name);
     nlohmann::json response_body;
     response_body = x;
     return { kOk, ::strdup(response_body.dump().c_str()) };

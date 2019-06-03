@@ -27,9 +27,9 @@ StatsJsonObject StatsBase::toJsonObject() {
 
   conf.setTcpattemptfails(getTcpattemptfails());
   conf.setTcpoutrsts(getTcpoutrsts());
-  conf.setDeliverration(getDeliverration());
+  conf.setDeliverratio(getDeliverratio());
   conf.setResponseratio(getResponseratio());
-  conf.setTimestamp(getTimestamp());
+  conf.setLastupdate(getLastupdate());
 
   return conf;
 }

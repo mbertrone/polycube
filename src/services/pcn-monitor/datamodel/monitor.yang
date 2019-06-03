@@ -32,7 +32,7 @@ module monitor {
         config false;
     }
 
-    leaf deliverration {
+    leaf deliverratio {
         type uint64;
         description "pkts delivered to application over total number";
         config false;
@@ -44,9 +44,9 @@ module monitor {
         config false;
     }
 
-    leaf timestamp {
+    leaf lastupdate {
         type uint64;
-        description "Time from epoch u64";
+        description "last update (time from epoch in milliseconds)";
         config false;
     }
   }

@@ -27,16 +27,16 @@ uint64_t Stats::getTcpoutrsts() {
   throw std::runtime_error("Stats::getTcpoutrsts: Method not implemented");
 }
 
-uint64_t Stats::getDeliverration() {
-  throw std::runtime_error("Stats::getDeliverration: Method not implemented");
+uint64_t Stats::getDeliverratio() {
+  throw std::runtime_error("Stats::getDeliverratio: Method not implemented");
 }
 
 uint64_t Stats::getResponseratio() {
   throw std::runtime_error("Stats::getResponseratio: Method not implemented");
 }
 
-uint64_t Stats::getTimestamp() {
-  throw std::runtime_error("Stats::getTimestamp: Method not implemented");
+uint64_t Stats::getLastupdate() {
+  throw std::runtime_error("Stats::getLastupdate: Method not implemented");
 }
 
 
